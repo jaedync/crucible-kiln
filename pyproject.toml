@@ -1,0 +1,37 @@
+[project]
+name = "crucible-kiln"
+version = "0.1.0"
+description = "Live inference dashboard and gateway for a single-box local LLM server"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+dependencies = ["aiohttp>=3.13,<4"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "pytest-aiohttp>=1.1"]
+
+[project.scripts]
+kiln = "kiln.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/jaedync/crucible-kiln"
+Source = "https://github.com/jaedync/crucible-kiln"
+Issues = "https://github.com/jaedync/crucible-kiln/issues"
+
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+kiln = ["store/migrations/*.sql", "web/static/**/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+markers = ["demo: end-to-end run of `kiln demo` (about 30 s); CI runs it with -m demo",
+           "bench: the gateway bench in fast mode (about 25 s); CI runs it with -m bench"]
+# The demo and bench runs take about 30 s each, so the everyday run leaves them out; CI runs them as their own step.
+addopts = "-m 'not demo and not bench'"

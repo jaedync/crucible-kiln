@@ -1,0 +1,523 @@
+/* Kiln rack panel: one fixed 1424 x 280 px screen (6.91 in, 172 x 34 mm, about 210 px per inch).
+   It is mostly read from 2-3 m, so the glance page (home) carries the state in colour blocks and one
+   196 px number (17.5 mm: easy to read to about 3 m). The other pages are read at arm's length: labels
+   18 px or more, secondary numbers 40-48 px, the key number of a page 80 px (7 mm, about 1.2 m). They sit
+   over a 60 px tab strip (7.2 mm) on the bottom bezel: a finger that overshoots still lands on a tab.
+   Same Bauhaus language as the dashboard: cream tiles, black rules (the ink background showing through
+   4 px gaps), red, blue and yellow blocks, Archivo Black numbers. No breakpoints and no scrolling.
+   One job for each colour: blue is work that runs normally (decode, a ready engine, a
+   running lease, a gauge in range, the charts); yellow is work before output or a change of state
+   (prefill, starting, stopping); orange is warm; red is a fault only; green is OK, as text. The corner
+   block is the one decoration. */
+
+@font-face {
+  font-family: 'Archivo Black';
+  src: url('../fonts/archivo-black-latin-400.woff2') format('woff2');
+  font-weight: 400; font-style: normal; font-display: block;
+}
+@font-face {
+  font-family: 'DM Sans';
+  src: url('../fonts/dm-sans-latin-wght.woff2') format('woff2');
+  font-weight: 100 1000; font-style: normal; font-display: block;
+}
+
+:root {
+  --paper: #f3eee3;
+  --ink: #161616;
+  --red: #d2342a;
+  --blue: #1d4f91;
+  --yellow: #f2c230;
+  --good: #2a7a3b;            /* draft acceptance bands, as on the dashboard (css/kiln.css): white text 5.3:1 */
+  --fair: #ec8a1c;            /* ink text 7.1:1; also a gauge's warm zone */
+  --tint: #b9cdec;            /* a gauge in range: blue at a strength that reads as blue, not grey, on paper */
+  --sub: #3d3a33;             /* darker than the dashboard's muted grey: read from a metre away */
+  --ochre: #7d6000;           /* yellow as text: plain yellow fails contrast on paper (as css/kiln.css) */
+  --rule: 4px;
+  --display: 'Archivo Black', 'Arial Black', Impact, sans-serif;
+  --text: 'DM Sans', system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { width: 100%; height: 100%; overflow: hidden; background: var(--ink);
+  -webkit-user-select: none; user-select: none; touch-action: none; }
+/* Only the kiosk hides the pointer; a laptop that follows the rack (main.js fitWindow) needs it. */
+html:not(.is-scaled) { cursor: none; }
+body {
+  width: 1424px; height: 280px; overflow: hidden; transform-origin: 0 0;
+  display: grid; grid-template-rows: 216px 60px; row-gap: var(--rule);
+  font: 600 20px/1.2 var(--text); color: var(--ink); font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+}
+[hidden] { display: none !important; }
+/* The glance page uses the whole screen. A tap shows the strip over its foot for 10 s (main.js). */
+body.is-full { grid-template-rows: 280px; row-gap: 0; }
+body.is-full .status { display: none; }
+body.is-full.strip-over .status { display: flex; position: fixed; left: 0; right: 0; bottom: 0; height: 60px; z-index: 6;
+  box-shadow: 0 calc(-1 * var(--rule)) 0 var(--ink); }
+
+/* ---------- pages and tiles ---------- */
+.pages { position: relative; overflow: hidden; }
+.page { position: absolute; inset: 0; display: grid; column-gap: var(--rule); background: var(--ink); }
+.page-fleet { grid-template-columns: 380px minmax(0, 1fr); }
+.page-today { grid-template-columns: 290px minmax(0, 1fr) 262px 300px; }
+.page-today.no-api { grid-template-columns: 290px minmax(0, 1fr) 300px; }  /* no [pricing.reference] */
+
+.tile {
+  position: relative; background: var(--paper); min-width: 0; overflow: hidden;
+  padding: 14px 18px 12px; display: flex; flex-direction: column;
+}
+.kicker { font: 800 18px/1 var(--text); letter-spacing: .12em; text-transform: uppercase; white-space: nowrap; }
+.vrow { display: flex; align-items: baseline; gap: 8px; margin-top: 12px; white-space: nowrap; }
+.v { font: 400 48px/.9 var(--display); letter-spacing: -.03em; }
+.v-key { font-size: 80px; letter-spacing: -.045em; }
+.v-text { font-size: 34px; line-height: 1; letter-spacing: -.02em; white-space: normal;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.v-name { font-size: 34px; line-height: 1; letter-spacing: -.02em; display: block; min-width: 0;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vrow:has(.v-name) { display: block; }
+.t-cost .v { min-width: 0; overflow: hidden; }  /* view.js fit() shrinks it to the tile */
+.v .dim { color: #8c8678; }  /* the cost's digits below a cent */
+.unit { font: 800 22px/1 var(--text); letter-spacing: .04em; }
+.approx { font-size: .55em; vertical-align: .3em; margin-right: .04em; }
+.sub { font: 700 20px/1.2 var(--text); color: var(--sub); margin-top: 8px; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis; }
+.sub:empty { display: none; }
+.v-text + .sub, .vrow + .sub.model { margin-top: 4px; }
+.foot { margin-top: auto; }
+
+.spark { display: block; width: 100%; height: 44px; margin-top: auto; overflow: visible; }
+.spark path { fill: none; stroke: var(--blue); stroke-width: 3px; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.spark .floor { stroke: rgba(22, 22, 22, .25); stroke-width: 2px; }
+
+.bar { display: block; height: 16px; border: 3px solid currentColor; margin-top: auto; }
+.bar > i { display: block; height: 100%; width: 0; background: currentColor; }
+
+/* A Bauhaus block in the corner of a page's key tile, as on the dashboard's hero. */
+.corner::after {
+  content: ''; position: absolute; right: 0; top: 0; width: 40px; height: 40px; background: var(--yellow);
+  border-left: var(--rule) solid var(--ink); border-bottom: var(--rule) solid var(--ink);
+}
+
+/* Tone of a status tile: the whole tile becomes the colour block. */
+.tile[data-tone='ready'] { background: var(--blue); color: #fff; }
+.tile[data-tone='busy'] { background: var(--yellow); }
+.tile[data-tone='bad'] { background: var(--red); color: #fff; }
+.tile[data-tone='maint'] { background: var(--ink); color: var(--paper); }
+.tile[data-tone='ready'] .sub, .tile[data-tone='bad'] .sub, .tile[data-tone='maint'] .sub { color: inherit; opacity: .9; }
+.tile[data-tone='hot'] .v { color: var(--red); }
+/* A running lease is the GPU's normal work: blue, as a ready engine. */
+.tile.t-lease[data-tone='busy'] { background: var(--blue); color: #fff; }
+.tile.t-lease[data-tone='busy'] .sub { color: inherit; opacity: .9; }
+.tile[data-tone='old'] .v { opacity: .35; }  /* an old last-request figure must not read as current */
+
+/* ---------- streams ---------- */
+.rows { list-style: none; margin-top: auto; display: flex; flex-direction: column; gap: 6px; }
+.row { display: grid; grid-template-columns: 16px minmax(0, 1fr) auto; gap: 10px; align-items: center;
+  border-top: 3px solid var(--ink); padding-top: 6px; }
+.row.no-sw { grid-template-columns: minmax(0, 1fr) auto; }
+.row .sw { width: 16px; height: 22px; background: var(--ink); }
+.row .name { font: 700 20px/1.1 var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.row .rate { font: 400 24px/1 var(--display); }
+.row .note { font-weight: 600; color: var(--sub); margin-left: 10px; }
+.row .tag { font: 800 18px/1 var(--text); letter-spacing: .1em; text-transform: uppercase;
+  background: var(--yellow); padding: 3px 6px; }
+.row[data-tone='bad'] .tag { background: var(--red); color: #fff; }
+/* A finished lease: only a failure is a block, so it is the first thing seen. OK is green text. */
+.t-recent .row:not([data-tone='bad']) .tag { background: none; padding-inline: 0; color: var(--sub); }
+.t-recent .row[data-tone='ok'] .tag { color: var(--good); }
+/* Last leases has no value line: its list starts under the label, so one folded row is not lost at the foot. */
+.t-recent .rows { margin-top: 12px; }
+.rows-empty, .rows-more { border-top: 3px solid var(--ink); padding-top: 6px; color: var(--sub); }
+.bar-note { margin-top: 6px; }
+.bar + .bar-note { margin-top: 6px; }
+
+/* ---------- tab strip ---------- */
+.status {
+  display: flex; align-items: stretch; background: var(--ink); color: var(--paper);
+  font: 700 20px/1 var(--text); white-space: nowrap;
+}
+.status > * { display: flex; align-items: center; border-right: 2px solid rgba(243, 238, 227, .2); }
+.conn { gap: 10px; padding: 0 18px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+.conn i { width: 14px; height: 14px; background: var(--paper); }
+.conn[data-state='stale'], .conn[data-state='reconnecting'], .conn[data-state='connecting'] { background: var(--red); }
+/* 166 x 60 px (20 x 7 mm) each; the current screen's tab is paper, joined to the page above by the rule. */
+.tab { position: relative; width: 166px; flex: none; justify-content: center; font: 400 22px/1 var(--display); letter-spacing: .03em;
+  text-transform: uppercase; }
+.tab[aria-current='true'] { background: var(--paper); color: var(--ink); }
+/* This session does not follow the rack (a #<id> pin) or may not change it. Static: no count, no motion. */
+.st-mark { padding: 0 14px; background: #3a3833; font: 800 15px/1.1 var(--text); letter-spacing: .1em;
+  text-transform: uppercase; white-space: normal; width: 92px; text-align: center; justify-content: center; }
+/* Who set the rack's screen and when: its text changes at most once a minute (tabs_model.ageText). */
+.sync { flex: 1 1 0; min-width: 0; flex-direction: column; align-items: flex-start; justify-content: center; gap: 5px;
+  padding: 0 16px; overflow: hidden; }
+.sync b { font: 800 15px/1 var(--text); letter-spacing: .12em; text-transform: uppercase; opacity: .75; }
+.sync span { font: 700 20px/1.1 var(--text); }
+.sync b, .sync span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+.sync[data-tone='bad'] { background: var(--red); color: #fff; }
+.sync[data-tone='bad'] b { opacity: .9; }
+/* A flag's reason: why the panel did not open the flagged screen (tabs_model.syncCell). */
+.sync[data-tone='hold'] { background: #2b2925; }
+/* A flag on a tab: news there that the panel did not open. Yellow a change of state, red a fault. */
+.tab[data-flag]::after { content: ''; position: absolute; top: 0; right: 0; width: 22px; height: 22px; }
+.tab[data-flag='warn']::after { background: var(--yellow); }
+.tab[data-flag='bad']::after { background: var(--red); }
+.clock { flex: none; padding: 0 18px; font: 400 22px/1 var(--display); border-right: 0; }
+
+/* ---------- engine page ---------- */
+.page-engine { grid-template-columns: 380px minmax(0, 1fr) 440px; }
+.page-engine > .tile { padding: 14px 20px; }
+.e-mid { padding: 14px 20px 12px; }
+.kicker .r { float: right; letter-spacing: .06em; }
+.e-title { flex: none; margin-top: 10px; font: 400 34px/1.08 var(--display); letter-spacing: -.02em; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis; }
+.e-note { flex: none; margin-top: 8px; font: 700 20px/1.25 var(--text); color: var(--sub); overflow: hidden;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.e-mid[data-mode='switch'] .e-note { -webkit-line-clamp: 1; white-space: nowrap; display: block; text-overflow: ellipsis; }
+.e-mid[data-mode='failed'] .e-note, .e-mid[data-mode='none'] .e-note { color: var(--ink); font-size: 22px; -webkit-line-clamp: 5; }
+.facts { list-style: none; margin-top: auto; display: flex; flex-direction: column; }
+.facts li { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; padding: 5px 0 4px;
+  border-top: 2px solid rgba(22, 22, 22, .18); font: 700 21px/1.1 var(--text); white-space: nowrap; }
+.facts li span { color: var(--sub); min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.facts li em { font: 400 24px/1 var(--display); font-style: normal; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.facts li[data-tone='old'] em { opacity: .35; }  /* an old last TTFT must not read as current */
+/* The steps of a switch: the current one yellow, done ones OK in green text, waiting ones dashed. */
+.steps { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: var(--rule); margin-top: auto;
+  height: 112px; background: var(--ink); border: var(--rule) solid var(--ink); }
+.step { position: relative; display: flex; flex-direction: column; min-width: 0; padding: 10px 12px 8px; background: var(--paper); }
+.step b { font: 800 16px/1.1 var(--text); letter-spacing: .1em; text-transform: uppercase; white-space: nowrap; }
+.step em { margin-top: auto; font: 400 26px/1 var(--display); font-style: normal; white-space: nowrap; }
+.step span { margin-top: 4px; font: 700 17px/1.1 var(--text); color: var(--sub); white-space: nowrap; overflow: hidden;
+  text-overflow: ellipsis; }
+.step[data-s='done'] em { color: var(--good); font: 800 22px/1 var(--text); letter-spacing: .1em; }
+.step[data-s='now'] { background: var(--yellow); }
+.step[data-s='now'] span { color: var(--ink); }
+.step[data-s='wait'] { color: #8c8678; }
+.step[data-s='wait']::before { content: ''; position: absolute; inset: 6px; border: 3px dashed rgba(22, 22, 22, .25); }
+.fillbar { display: block; flex: none; height: 8px; margin-top: 5px; background: rgba(22, 22, 22, .2); }
+.fillbar b { display: block; height: 100%; background: var(--ink); }
+/* The GPU numbers of the old GPU page, two by two. */
+.e-gpu { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: var(--rule); min-width: 0; }
+.e-gpu > .e-cell { padding: 10px 14px 8px; }
+.e-cell .kicker { font-size: 16px; }
+.e-cell .kicker .r { font: 700 16px/1 var(--text); letter-spacing: 0; text-transform: none; color: var(--sub); }
+.e-cell .vrow { margin-top: 8px; }
+.e-cell .v { font-size: 40px; }
+.e-cell .unit { font-size: 18px; }
+.e-cell .sub { margin-top: auto; font-size: 18px; }
+.e-cell .spark { height: 22px; }
+
+/* ---------- fleet page ---------- */
+.f-view { display: grid; column-gap: var(--rule); background: var(--ink); min-width: 0; }
+.f-plan-view { grid-template-columns: minmax(0, 1fr) 300px; }
+.f-day-view { grid-template-columns: 300px minmax(0, 1fr) 232px; }
+.page-fleet > .tile, .f-view > .tile { padding: 14px 20px 12px; }
+.page-fleet .g-state { padding: 14px 20px; }
+/* The night plan: the item that runs, large, and a strip with one box per item (fleet_model.planStrip). */
+.f-now { display: flex; align-items: baseline; gap: 16px; margin-top: 10px; min-width: 0; white-space: nowrap; }
+.f-name { display: block; flex: 0 1 auto; min-width: 0; font: 400 52px/1 var(--display); letter-spacing: -.02em;
+  overflow: hidden; text-overflow: ellipsis; }
+.f-time { flex: none; }
+.f-spent { font: 400 30px/1 var(--display); }
+.f-time small { font: 800 20px/1 var(--text); margin-left: 8px; }
+.plan { display: flex; gap: var(--rule); height: 74px; margin-top: auto; background: var(--ink); border: var(--rule) solid var(--ink); }
+.plan > i { position: relative; display: flex; flex-direction: column; justify-content: center; min-width: 56px;
+  padding: 0 10px; overflow: hidden; background: var(--paper); font-style: normal; }
+.plan > i > b { position: relative; font: 700 18px/1.15 var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.plan > i > small { position: relative; margin-top: 4px; font: 800 15px/1 var(--text); letter-spacing: .08em;
+  text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.plan > i[data-s='pass'] > small { color: var(--good); }
+.plan > i[data-s='fail'] { background: var(--red); color: #fff; }
+.plan > i[data-s='run'] { background: var(--tint); }
+.plan > i > .f { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--blue); }
+.plan > i[data-s='run'] > b, .plan > i[data-s='run'] > small { align-self: flex-start; max-width: 100%;
+  padding: 2px 5px; background: var(--paper); }
+.plan > i[data-s='wait'], .plan > i[data-s='skip'], .plan > i[data-s='fold'] { color: #6b665c; }
+.plan > i[data-s='wait']::before, .plan > i[data-s='fold']::before { content: ''; position: absolute; inset: 5px;
+  border: 2px dashed rgba(22, 22, 22, .3); }
+.f-off .facts li[data-tone='bad'] em { color: var(--red); }
+/* A number is never cut: a long name gives way with an ellipsis. */
+.f-view .facts li em, .page-today .facts li em { flex: none; }
+/* By day: the lease, the queue (oldest first) and the last leases. */
+.f-lease { margin-top: 10px; font: 400 44px/1 var(--display); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.f-clock { margin-top: 8px; font: 700 22px/1.2 var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.f-lease-tile .kicker .r { font: 700 20px/.9 var(--text); letter-spacing: .02em; text-transform: none; }
+.f-lease-tile[data-tone='busy'] { background: var(--blue); color: #fff; }
+.f-lease-tile[data-tone='maint'] { background: var(--ink); color: var(--paper); }
+.f-lease-tile[data-tone='bad'] { background: var(--red); color: #fff; }
+.f-lease-tile .bar { height: 16px; }
+.f-queue .kicker .r { letter-spacing: .08em; }
+.f-queue .g-qrows { margin-top: 10px; }
+.f-queue .g-qrow { grid-template-columns: minmax(0, 1fr) auto 76px 100px; }
+.f-more { margin-top: 4px; font: 700 22px/1.2 var(--text); color: var(--sub); white-space: nowrap; overflow: hidden;
+  text-overflow: ellipsis; }
+.f-more:empty { display: none; }
+.f-recent .facts { margin-top: 10px; }
+.f-recent .facts li em { font: 800 18px/1 var(--text); letter-spacing: .1em; text-transform: uppercase; color: var(--sub); }
+.f-recent .facts li[data-tone='ok'] em { color: var(--good); }
+/* A failed lease is the one block: the first thing seen. */
+.f-recent .facts li[data-tone='bad'] em { background: var(--red); color: #fff; padding: 3px 6px; }
+
+/* ---------- today page ---------- */
+.page-today > .tile { padding: 14px 20px 12px; }
+.t-req .vrow { margin-top: 16px; }
+.t-req .sub { margin-top: auto; }
+.t-api .vrow { margin-top: 12px; }
+.t-api .v { min-width: 0; overflow: hidden; }
+/* The bar under the cost (js/cost_mix.js): today's cost by kind. */
+.cost-mix { display: flex; height: 10px; margin-top: 8px; opacity: 0; outline: 2px solid var(--ink);
+  transition: opacity .45s linear; }
+.cost-mix > i { display: block; height: 100%; width: 0; }
+.cost-mix > [data-kind='output'] { background: var(--blue); }
+.cost-mix > [data-kind='input'] { background: var(--yellow); }
+.cost-mix > [data-kind='cached'] {
+  background: repeating-linear-gradient(135deg, var(--yellow) 0 5px, var(--ink) 5px 8px); }
+/* A digit that changed takes the colour of what changed it (js/panel/today.js): ochre stands for the bar's
+   yellow, which fails contrast as text; cache reads are the same stripes, clipped to the digit. A settling
+   record is no kind of inference: its digits keep their own colour. */
+.t-api .v > span > span { transition: color .45s linear; }  /* on at once, back over .45 s: a flash */
+.t-api .v > span > [data-kind] { transition: none; }
+.t-api .v [data-kind='output'] { color: var(--blue); }
+.t-api .v [data-kind='input'] { color: var(--ochre); }
+.t-api .v [data-kind='cached'] { color: transparent; -webkit-background-clip: text; background-clip: text;
+  background-image: repeating-linear-gradient(135deg, var(--ochre) 0 4px, var(--ink) 4px 7px); }
+/* Requests per hour: one blue column per local hour, the current one light and outlined; an empty hour is
+   a thin grey mark, so the day's shape reads at once. */
+.hours { display: flex; align-items: flex-end; gap: 4px; height: 112px; margin-top: auto; padding: 0 4px;
+  border-bottom: 3px solid var(--ink); }
+.hours > i { flex: 1; min-width: 0; background: var(--blue); }
+.hours > i[data-zero] { height: 3px !important; background: rgba(22, 22, 22, .15); }
+.hours > i[data-now] { background: var(--tint); outline: 3px solid var(--ink); outline-offset: 1px; }
+.hours > i[data-now][data-zero] { height: 6px !important; }
+.hlabels { display: flex; gap: 4px; padding: 0 4px; margin-top: 6px; font: 700 16px/1 var(--text); color: var(--sub); }
+.hlabels > span { flex: 1; min-width: 0; white-space: nowrap; overflow: visible; }
+
+/* ---------- settings page ---------- */
+.page-settings { display: block; }
+.s-view { position: absolute; inset: 0; display: grid; gap: var(--rule); background: var(--ink); }
+.s-main { grid-template-columns: 300px minmax(0, 1fr) 380px 290px; }
+.s-side { display: grid; grid-template-rows: 1fr 1fr; row-gap: var(--rule); min-width: 0; }
+.s-side > .tile { padding: 12px 20px 10px; }
+.s-rules { grid-template-columns: 300px repeat(3, minmax(0, 1fr)); grid-template-rows: 1fr 1fr; }
+.s-rules .s-about { grid-row: 1; grid-column: 1; }
+.s-rules .s-back { grid-row: 2; grid-column: 1; }
+.s-rules .s-quiet { grid-row: 2; grid-column: 3 / span 2; }
+.s-view > .tile { padding: 14px 20px 12px; }
+.tile .note { font: 700 19px/1.25 var(--text); color: var(--sub); margin-top: 8px; white-space: normal; }
+.tile .note:empty { display: none; }
+/* A row of boxes about 90 px high: the chosen box is ink (structure), not a status colour. */
+.seg { display: flex; gap: var(--rule); height: 90px; margin-top: auto; background: var(--ink); border: var(--rule) solid var(--ink); }
+.seg > i { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 0;
+  background: var(--paper); font: 400 23px/1 var(--display); font-style: normal; text-transform: uppercase; white-space: nowrap; }
+.seg > i small { margin-top: 6px; font: 700 16px/1 var(--text); text-transform: none; color: var(--sub); }
+.seg > i[aria-checked='true'] { background: var(--ink); color: var(--paper); }
+.seg > i[aria-checked='true'] small { color: var(--paper); opacity: .8; }
+.s-quiet .seg { height: 66px; }  /* a 4 px rule and 66 px boxes under a one-line label: 216 px in all */
+/* A button tile: one big word, a line under it, a chevron. */
+.btn { justify-content: center; }
+.btn b { font: 400 30px/1 var(--display); letter-spacing: -.01em; text-transform: uppercase; white-space: nowrap; }
+.btn small { margin-top: 8px; font: 700 19px/1.15 var(--text); color: var(--sub); white-space: nowrap; overflow: hidden;
+  text-overflow: ellipsis; }
+.btn .go { position: absolute; right: 22px; top: 50%; margin-top: -22px; font: 400 40px/1 var(--display); }
+.s-side .btn b { font-size: 28px; }
+.s-side .btn small { margin-top: 6px; }
+.s-side .btn .go { right: 18px; }
+/* The alarm mute: a dashed note without an alarm, a red button during one, an ink button to end a mute. */
+.s-alarm[data-state='none'] { background: var(--paper); box-shadow: inset 0 0 0 3px var(--paper), inset 0 0 0 6px rgba(22, 22, 22, .3); }
+.s-alarm[data-state='none'] b, .s-alarm[data-state='none'] small { color: #8c8678; }
+.s-alarm[data-state='alarm'] { background: var(--red); color: #fff; }
+.s-alarm[data-state='alarm'] small { color: #fff; opacity: .9; }
+.s-alarm[data-state='muted'] { box-shadow: inset 8px 0 0 var(--red); padding-left: 28px; }
+.s-alarm[aria-disabled][data-state='alarm'] { background: var(--paper); color: #8c8678; box-shadow: inset 0 0 0 3px var(--paper), inset 0 0 0 6px rgba(22, 22, 22, .3); }
+.rule { display: grid; grid-template-columns: minmax(0, 1fr) 96px; column-gap: 14px; align-items: center; }
+.rule .when { font: 700 18px/1.15 var(--text); color: var(--sub); }
+.rule .then { margin-top: 4px; font: 400 26px/1 var(--display); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rule .rid { margin-top: 6px; font: 700 14px/1 var(--text); letter-spacing: .04em; color: var(--sub); }
+.rule .tg { height: 74px; display: flex; align-items: center; justify-content: center; border: 4px solid var(--ink);
+  font: 400 24px/1 var(--display); }
+.rule .tg[aria-checked='true'] { background: var(--ink); color: var(--paper); }
+/* A session that may not act: the boxes are dashed and grey, and a tap does nothing (settings.js). */
+.page-settings[data-ro] .seg { background: transparent; border-color: transparent; gap: 6px; }
+.page-settings[data-ro] .seg > i { border: 3px dashed rgba(22, 22, 22, .35); color: #8c8678; }
+.page-settings[data-ro] .seg > i[aria-checked='true'] { background: #d9d3c6; color: #6b665c; }
+.page-settings[data-ro] .seg > i small { color: #8c8678; }
+.page-settings[data-ro] .rule .tg { border-style: dashed; border-color: rgba(22, 22, 22, .35); color: #8c8678; background: none; }
+.page-settings[data-ro] .rule .tg[aria-checked='true'] { background: #d9d3c6; color: #6b665c; }
+
+/* ---------- glance page (home): read from across the room ---------- */
+.page-glance { display: block; }
+.g-layout { position: absolute; inset: 0; display: grid; column-gap: var(--rule); background: var(--ink); }
+.g-serve { grid-template-columns: 380px minmax(0, 1fr) 470px; }
+.g-fleet { grid-template-columns: 380px 460px minmax(0, 1fr); }  /* "100 %" fits 460 px; the queue gets the rest */
+.g-fleet.no-fleet { grid-template-columns: 380px minmax(0, 1fr); }  /* no [schedule]: no lease or queue */
+.g-alarm { grid-template-columns: 1fr; }
+.g-layout > .tile, .g-left > .tile { padding: 14px 20px; }
+
+/* The left column: the state block, and under it three cells: package power, GPU and CPU temperature. */
+.g-left { display: grid; grid-template-rows: minmax(0, 1fr) 88px; row-gap: var(--rule); min-width: 0; }
+.g-vitals { display: grid; grid-template-columns: 1.3fr 1fr 1fr; column-gap: var(--rule); min-height: 0; }
+.g-left > .g-vitals > .g-vital { padding: 10px 10px 9px; }
+.g-vital .kicker { font-size: 16px; }
+/* A gauge behind the reading: blue in range, orange warm, red hot (glance_model.VITAL_SCALES). The solid
+   edge marks the level; a gauge at 0 shows no edge. */
+.g-vfill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--tint);
+  border-right: 4px solid var(--blue); }
+.g-vfill[style*='width: 0'] { border-right-width: 0; }
+.g-vital[data-zone='warm'] .g-vfill { background: var(--fair); border-right-color: var(--ink); }
+.g-vital[data-zone='hot'] .g-vfill { background: var(--red); border-right-color: var(--ink); }
+.g-vital[data-zone='hot'] { color: #fff; }
+.g-vital .kicker, .g-vnum { position: relative; }
+.g-vnum { margin-top: auto; font: 400 52px/.8 var(--display); letter-spacing: -.02em; white-space: nowrap; overflow: hidden; }
+.g-vnum b { font-weight: 400; }  /* Archivo Black has one weight: no synthetic bold */
+.g-vnum small { font: 800 .4em/1 var(--text); letter-spacing: .02em; margin-left: 4px; }  /* shrinks with fit() */
+
+.g-word { font: 400 84px/.9 var(--display); letter-spacing: -.01em; white-space: nowrap; overflow: hidden; }
+.g-name { font: 400 40px/1 var(--display); margin-top: auto; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.g-sub { font: 700 24px/1.1 var(--text); margin-top: 8px; opacity: .9; white-space: nowrap; overflow: hidden;
+  text-overflow: ellipsis; }
+.g-sub:empty { display: none; }
+.g-state[data-tone='maint'] { border-right: var(--rule) solid #3a3833; }
+
+.kicker .chip { display: inline-block; width: 14px; height: 14px; margin-right: 8px; vertical-align: -1px; }
+.chip:not([data-kind]) { display: none; }
+.chip[data-kind='dec'] { background: var(--blue); }
+.chip[data-kind='pre'] { background: var(--yellow); }
+.hatch { background: repeating-linear-gradient(135deg, var(--yellow) 0 10px, #f9e6a6 10px 20px); }
+
+.g-row { display: flex; align-items: center; gap: 24px; margin-top: 18px; min-width: 0; position: relative; z-index: 1; }
+.g-huge { font: 400 196px/.8 var(--display); letter-spacing: -.02em; white-space: nowrap; flex: none; }
+.g-huge small { font: 800 30px/1 var(--text); letter-spacing: .04em; margin-left: 10px; }
+.g-huge .approx { font-size: .3em; vertical-align: .9em; }
+/* The hero's columns (glance_model.HERO_COLUMNS): one blue bar per 10 s window, scaled from 0, and a
+   yellow mark at the foot of a window that also prefilled. Plain boxes, no SVG: a draw writes only the
+   heights that changed (view.js columnChart). */
+.g-cols { position: absolute; left: 0; right: 0; bottom: 0; height: 64px; display: flex; gap: 3px;
+  padding: 6px 3px 0; border-top: 2px solid rgba(22, 22, 22, .15); }
+.g-cols > i { flex: 1; position: relative; display: flex; align-items: flex-end; }
+.g-cols b { display: block; width: 100%; background: var(--blue); }
+.g-cols u { display: none; position: absolute; left: 0; right: 0; bottom: 0; height: 10px; background: var(--yellow); }
+.g-cols i[data-mark] u { display: block; }
+.g-side { font: 700 26px/1.25 var(--text); display: none; min-width: 0; overflow: hidden; white-space: nowrap; }
+.g-side b { font: 400 34px/1.1 var(--display); display: block; }
+.g-side span { display: block; }
+.g-band { position: absolute; left: 20px; right: 20px; bottom: 16px; height: 40px; border: 4px solid var(--ink);
+  background: var(--paper); display: none; }
+.g-band i { display: block; height: 100%; width: 0; }
+.g-hero[data-kind='prefill'] .g-side, .g-hero[data-kind='wait'] .g-side { display: block; }
+.g-hero[data-kind='prefill'] .g-band { display: block; }
+.g-hero[data-kind='prefill'] .g-cols, .g-hero[data-kind='wait'] .g-cols { display: none; }
+
+.g-lanes .kicker .more { float: right; letter-spacing: .08em; }
+.lanes { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; flex: 1; min-height: 0; }
+.lane { flex: 1; position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto 64px; align-items: center;
+  column-gap: 14px; padding: 0 12px; border: 3px solid var(--ink); background: var(--paper); overflow: hidden; min-height: 0; }
+.lane > span { position: relative; z-index: 1; white-space: nowrap; }
+.lane .nm { font: 700 22px/1 var(--text); overflow: hidden; text-overflow: ellipsis; }
+.lane .tok { font: 800 22px/1 var(--text); text-align: right; }
+.lane .tok small { font-size: 16px; font-weight: 700; margin-left: 4px; opacity: .8; }
+.lane .tok .approx { font-size: 16px; margin-right: 1px; vertical-align: 2px; }
+.lane .val { font: 400 28px/1 var(--display); text-align: right; }
+.lane .fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; display: none; }
+.lane[data-kind='dec'] { background: var(--blue); color: #fff; }
+.lane[data-kind='dec'] .tok { opacity: .88; }
+.lane[data-kind='pre'] .fill { display: block; }
+.lane[data-kind='pre'] > span, .lane[data-kind='wait'] > span:not(:empty) { background: var(--paper); padding: 3px 8px; }
+.lane[data-kind='pre'] .nm, .lane[data-kind='wait'] .nm { justify-self: start; }
+.lane[data-kind='pre'] .tok, .lane[data-kind='pre'] .val, .lane[data-kind='wait'] .val { justify-self: end; }
+.lane[data-kind='wait'] { background: repeating-linear-gradient(135deg, #f5d97e 0 10px, var(--paper) 10px 20px); }
+.lane[data-kind='free'] { border: 3px dashed rgba(22, 22, 22, .3); background: transparent; }
+/* A decode lane's draft acceptance: a cell of the band's colour between the tokens and the rate, as tall as
+   the lane and ruled off like a tile. Read from across the room, the colour comes first and the figure second.
+   Every decode lane keeps the column once one lane has a value, so the token counts stay in line. */
+.lane .dr { display: none; }
+.lanes[data-drafts] .lane[data-kind='dec'] { grid-template-columns: minmax(0, 1fr) auto 66px 64px; }
+.lanes[data-drafts] .lane[data-kind='dec'] .dr { display: flex; align-self: stretch; align-items: center;
+  justify-content: center; border-inline: 3px solid var(--ink); }
+.lane:not([data-draft]) .dr { border-color: transparent; }
+.lane .dr > b { font: 400 22px/1 var(--display); letter-spacing: -.01em; }
+.lane[data-draft='high'] .dr { background: var(--good); color: #fff; }
+.lane[data-draft='mid'] .dr { background: var(--fair); color: var(--ink); }
+.lane[data-draft='low'] .dr { background: var(--red); color: #fff; }
+/* Five or six lanes (a 6-slot engine) are 32 px high, not 51: smaller text, so each slot keeps its own
+   lane. Their colours still read across the room; the text is for arm's length. */
+.lanes[data-compact] { gap: 5px; }
+.lanes[data-compact] .lane { border-width: 2px; column-gap: 12px; }
+.lanes[data-compact] .lane .nm, .lanes[data-compact] .lane .tok { font-size: 20px; }
+.lanes[data-compact] .lane .val { font-size: 24px; }
+/* A compact rate is 24 px: "120" fits 56 px, and the name gets the rest ("eval-set-1234" at 20 px). */
+.lanes[data-compact][data-drafts] .lane[data-kind='dec'] { grid-template-columns: minmax(0, 1fr) auto 58px 56px; }
+.lanes[data-compact] .lane .dr { border-inline-width: 2px; }
+.lanes[data-compact] .lane .dr > b { font-size: 19px; }
+.lanes[data-compact] .lane[data-kind='pre'] > span,
+.lanes[data-compact] .lane[data-kind='wait'] > span:not(:empty) { padding: 1px 6px; }
+
+/* The night's right column: the running lease over the queue. */
+.g-right { display: grid; grid-template-rows: 108px minmax(0, 1fr); row-gap: var(--rule); min-width: 0; }
+.g-right > .tile { padding: 12px 20px 10px; }
+.g-lease-tile .kicker .meta, .g-queue-tile .kicker .more { float: right; }
+.g-lease-tile .kicker .meta { font: 700 20px/.9 var(--text); letter-spacing: .02em; text-transform: none; }
+.g-lease-row { display: flex; align-items: baseline; gap: 18px; margin-top: 8px; min-width: 0; }
+.g-lease { font: 400 40px/1 var(--display); flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden;
+  text-overflow: ellipsis; }
+.g-clock { flex: none; white-space: nowrap; }
+.g-clock b { font: 400 40px/1 var(--display); letter-spacing: -.01em; }
+.g-clock small { font: 800 20px/1 var(--text); margin-left: 8px; }
+.g-lease-tile .bar { height: 14px; }
+.g-queue-tile .kicker .more { letter-spacing: .08em; }
+.g-qrows { display: flex; flex-direction: column; margin-top: 8px; min-height: 0; }
+.g-qrow { display: grid; grid-template-columns: minmax(0, 1fr) auto 66px 92px; column-gap: 14px; align-items: baseline;
+  border-top: 2px solid rgba(22, 22, 22, .18); padding: 2px 0 1px; }
+.g-qrow .nm { font: 700 22px/1.1 var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.g-qrow .kind { font: 800 15px/1 var(--text); letter-spacing: .1em; text-transform: uppercase; color: var(--sub); }
+.g-qrow .usual { font: 400 24px/1 var(--display); text-align: right; white-space: nowrap; }
+.g-qrow .max { font: 700 18px/1 var(--text); color: var(--sub); text-align: right; white-space: nowrap; }
+.g-qempty { font: 700 22px/1.2 var(--text); color: var(--sub); margin-top: 6px; }
+.g-lease-tile[data-tone='busy'] { background: var(--blue); color: #fff; }
+.g-lease-tile[data-tone='maint'] { background: var(--ink); color: var(--paper); }
+.g-lease-tile[data-tone='bad'] { background: var(--red); color: #fff; }
+
+.g-alarm .tile { background: var(--red); color: #fff; justify-content: center; padding-left: 40px; }
+.g-alarm-title { font: 400 120px/.9 var(--display); letter-spacing: -.01em; white-space: nowrap; }
+.g-alarm .tile:has(.g-mute:not([hidden])) .g-alarm-title { max-width: 940px; overflow: hidden; }
+.g-alarm-sub { font: 700 32px/1.1 var(--text); margin-top: 18px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  max-width: 940px; }
+/* The alarm's one button (not for NO DATA): 360 x 140 px, far from the title, so a tap meant for the strip
+   does not land on it by chance. */
+.g-mute { position: absolute; right: 40px; top: 70px; width: 360px; height: 140px; display: flex; flex-direction: column;
+  justify-content: center; padding: 0 24px; border: 6px solid #fff; }
+.g-mute b { font: 400 34px/1 var(--display); text-transform: uppercase; white-space: nowrap; }
+.g-mute small { margin-top: 10px; font: 700 19px/1.2 var(--text); white-space: pre-line; }
+.g-mute[aria-disabled] { border-style: dashed; opacity: .7; }
+/* During a mute: a red tag over the corner block of the large number counts the minutes left. */
+.g-mtag { position: absolute; right: 0; top: 0; z-index: 2; height: 44px; display: flex; align-items: center;
+  padding: 0 16px; background: var(--red); color: #fff; font: 800 17px/1 var(--text); letter-spacing: .1em;
+  text-transform: uppercase; white-space: nowrap; border-left: var(--rule) solid var(--ink); border-bottom: var(--rule) solid var(--ink); }
+
+/* A draw that failed: never leave the last good frame looking live. */
+.fault { position: fixed; inset: 0; z-index: 10; background: var(--red); color: #fff; display: flex;
+  flex-direction: column; justify-content: center; padding-left: 40px; }
+.fault b { font: 400 120px/.9 var(--display); }
+.fault span { font: 700 26px/1.2 var(--text); margin-top: 16px; white-space: nowrap; overflow: hidden;
+  text-overflow: ellipsis; max-width: 1340px; }
+
+/* Screen at night, Dim (main.js, glance_model.dimNow): the same boxes in low light, one class on the body,
+   so it costs no draw. The backlight stays on: only a real output power-off makes the screen dark. */
+body.is-dim { --paper: #1a1917; --ink: #000; --sub: #7d776c; --blue: #213a5c; --tint: #2a3546; --yellow: #6e5a1c;
+  --red: #6a221d; --good: #3f6b48; color: #8e887c; }
+body.is-dim .tile { color: #8e887c; }
+body.is-dim .tile[data-tone='maint'], body.is-dim .g-lease-tile[data-tone='maint'] { background: #000; color: #8e887c; }
+body.is-dim .tile[data-tone='ready'], body.is-dim .g-lease-tile[data-tone='busy'],
+body.is-dim .f-lease-tile[data-tone='busy'] { color: #b4aea2; }
+body.is-dim .g-cols b { background: #2c4a75; }
+body.is-dim .g-vfill { border-right-color: #3a5a88; }
+body.is-dim .status { color: #8e887c; }
+body.is-dim .tab[aria-current='true'] { color: #b4aea2; }
+body.is-dim .plan > i[data-s='wait']::before, body.is-dim .plan > i[data-s='fold']::before { border-color: rgba(142, 136, 124, .3); }
+body.is-dim .hours > i[data-now] { outline-color: #8e887c; }
+body.is-dim .seg > i[aria-checked='true'], body.is-dim .seg > i[aria-checked='true'] small,
+body.is-dim .rule .tg[aria-checked='true'] { color: #b4aea2; }
+body.is-dim .hours, body.is-dim .row, body.is-dim .rows-empty, body.is-dim .rows-more { border-color: #3a3833; }
+
+/* Not live: grey every value so a frozen number never reads as current. */
+body.is-stale .page .v, body.is-stale .page .row .rate, body.is-stale .spark path, body.is-stale .facts em,
+body.is-stale .g-huge, body.is-stale .lanes, body.is-stale .g-clock, body.is-stale .g-cols,
+body.is-stale .g-vnum, body.is-stale .g-vfill { opacity: .35; }

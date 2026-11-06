@@ -1,0 +1,20 @@
+[Unit]
+Description=Kiln dashboard, ingest and engine manager, port 7000
+Documentation=file://%h/kiln/ARCHITECTURE.md
+After=network-online.target kiln-gateway.service
+
+[Service]
+Environment=PYTHONPATH=%h/kiln/src PYTHONUNBUFFERED=1
+ExecStart=/usr/bin/python3 -m kiln.cli dash
+Restart=always
+RestartSec=5
+MemoryMax=1G
+# The kernel keeps this much of the dashboard (its heap and the database pages it reads) when other
+# GPU jobs need memory. Without it a model load pushed the pages out and the tick waited seconds on page
+# reads. Works only with MemoryLow on the parents (user.slice, user-1000.slice, user@1000.service and
+# app.slice).
+MemoryLow=512M
+NoNewPrivileges=yes
+
+[Install]
+WantedBy=default.target

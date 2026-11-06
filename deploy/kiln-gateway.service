@@ -1,0 +1,19 @@
+[Unit]
+Description=Kiln gateway (OpenAI-compatible relay with usage records), port 8000
+Documentation=file://%h/kiln/ARCHITECTURE.md
+After=network-online.target
+
+[Service]
+Environment=PYTHONPATH=%h/kiln/src PYTHONUNBUFFERED=1
+ExecStart=/usr/bin/python3 -m kiln.cli gateway
+Restart=always
+RestartSec=2
+# Body cap (32 MiB default) x parse slots (a body of wide text takes 18 times its size), held bodies and a
+# base: gateway.app.memory_max_mib(32).
+MemoryMax=1728M
+# Kept when other GPU jobs need memory; see kiln-dash.service.
+MemoryLow=64M
+NoNewPrivileges=yes
+
+[Install]
+WantedBy=default.target

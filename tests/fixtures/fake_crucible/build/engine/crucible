@@ -1,0 +1,5 @@
+#!/bin/sh
+# The engine binary of the fake Crucible checkout. The fake server (server/__main__.py) never runs it: the
+# file is here because `kiln init --crucible DIR` and the real server want build/engine/crucible to exist.
+echo "fake crucible engine: nothing to run (see tests/fixtures/fake_crucible/README.md)" >&2
+exit 0

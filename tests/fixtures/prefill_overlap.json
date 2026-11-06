@@ -1,0 +1,478 @@
+{
+ "note": "synthetic rows: request rows with the engine's crucible_prefill chunk reports; numeric and timing columns only. Times are UTC.",
+ "rows": [
+  {
+   "id": "row-A-402",
+   "engine_req": "402",
+   "model": "qwen3.8-flash-next",
+   "ts_start": 1768496447.195,
+   "ts_first_token": 1768496485.231,
+   "ts_last_token": 1768496494.467,
+   "ts_end": 1768496494.469,
+   "profile": "crucible-t20-long256",
+   "engine": "crucible",
+   "prompt": 49311,
+   "cached": 0,
+   "completion": 232,
+   "engine_prefill_tokens": 49311,
+   "engine_prefill_s": 35.6043,
+   "engine_decode_s": 9.2336,
+   "engine_queue_s": 1.081,
+   "host": "strix",
+   "container": "kiln-crucible-t20-long256",
+   "source": "gateway",
+   "series_done": 1
+  },
+  {
+   "id": "row-B-403",
+   "engine_req": "403",
+   "model": "qwen3.8-flash-next",
+   "ts_start": 1768496448.904,
+   "ts_first_token": 1768496466.903,
+   "ts_last_token": 1768496514.267,
+   "ts_end": 1768496514.269,
+   "profile": "crucible-t20-long256",
+   "engine": "crucible",
+   "prompt": 111096,
+   "cached": 110251,
+   "completion": 520,
+   "engine_prefill_tokens": 845,
+   "engine_prefill_s": 1.1471,
+   "engine_decode_s": 47.3604,
+   "engine_queue_s": 16.4912,
+   "host": "strix",
+   "container": "kiln-crucible-t20-long256",
+   "source": "gateway",
+   "series_done": 1
+  },
+  {
+   "id": "row-C-413",
+   "engine_req": "413",
+   "model": "qwen3.8-flash-next",
+   "ts_start": 1768496533.618,
+   "ts_first_token": 1768496577.074,
+   "ts_last_token": 1768496648.766,
+   "ts_end": 1768496648.769,
+   "profile": "crucible-t20-long256",
+   "engine": "crucible",
+   "prompt": 56701,
+   "cached": 0,
+   "completion": 1105,
+   "engine_prefill_tokens": 56701,
+   "engine_prefill_s": 40.6145,
+   "engine_decode_s": 71.6863,
+   "engine_queue_s": 0.0322,
+   "host": "strix",
+   "container": "kiln-crucible-t20-long256",
+   "source": "gateway",
+   "series_done": 1
+  },
+  {
+   "id": "row-D-414",
+   "engine_req": "414",
+   "model": "qwen3.8-flash-next",
+   "ts_start": 1768496535.777,
+   "ts_first_token": 1768496540.993,
+   "ts_last_token": 1768496579.861,
+   "ts_end": 1768496579.975,
+   "profile": "crucible-t20-long256",
+   "engine": "crucible",
+   "prompt": 26764,
+   "cached": 25523,
+   "completion": 216,
+   "engine_prefill_tokens": 1241,
+   "engine_prefill_s": 1.5713,
+   "engine_decode_s": 38.976,
+   "engine_queue_s": 3.4384,
+   "host": "strix",
+   "container": "kiln-crucible-t20-long256",
+   "source": "gateway",
+   "series_done": 1
+  },
+  {
+   "id": "row-spike-1",
+   "engine_req": null,
+   "model": "qwen3.8-flash-next",
+   "ts_start": 1768485619.313,
+   "ts_first_token": 1768485619.622,
+   "ts_last_token": 1768485619.622,
+   "ts_end": 1768485619.623,
+   "profile": "crucible-t20-long256",
+   "engine": "crucible",
+   "prompt": 117928,
+   "cached": 0,
+   "completion": 1,
+   "engine_prefill_tokens": 117928,
+   "engine_prefill_s": 0.2158,
+   "engine_decode_s": 0.0,
+   "engine_queue_s": 0.0085,
+   "host": "strix",
+   "container": "kiln-crucible-t20-long256",
+   "source": "gateway",
+   "series_done": 1
+  },
+  {
+   "id": "row-spike-2",
+   "engine_req": null,
+   "model": "qwen3.8-flash-next",
+   "ts_start": 1768485731.227,
+   "ts_first_token": 1768485731.571,
+   "ts_last_token": 1768485731.571,
+   "ts_end": 1768485731.572,
+   "profile": "crucible-t20-long256",
+   "engine": "crucible",
+   "prompt": 117928,
+   "cached": 0,
+   "completion": 1,
+   "engine_prefill_tokens": 117928,
+   "engine_prefill_s": 0.2072,
+   "engine_decode_s": 0.0,
+   "engine_queue_s": 0.0037,
+   "host": "strix",
+   "container": "kiln-crucible-t20-long256",
+   "source": "gateway",
+   "series_done": 1
+  },
+  {
+   "id": "row-spike-3",
+   "engine_req": null,
+   "model": "qwen3.8-flash-next",
+   "ts_start": 1768485843.084,
+   "ts_first_token": 1768485843.894,
+   "ts_last_token": 1768485843.894,
+   "ts_end": 1768485843.895,
+   "profile": "crucible-t20-long256",
+   "engine": "crucible",
+   "prompt": 118408,
+   "cached": 0,
+   "completion": 1,
+   "engine_prefill_tokens": 118408,
+   "engine_prefill_s": 0.6889,
+   "engine_decode_s": 0.0,
+   "engine_queue_s": 0.0084,
+   "host": "strix",
+   "container": "kiln-crucible-t20-long256",
+   "source": "gateway",
+   "series_done": 1
+  },
+  {
+   "id": "row-spike-4",
+   "engine_req": null,
+   "model": "qwen3.8-flash-next",
+   "ts_start": 1768485844.03,
+   "ts_first_token": 1768485844.964,
+   "ts_last_token": 1768485844.964,
+   "ts_end": 1768485844.965,
+   "profile": "crucible-t20-long256",
+   "engine": "crucible",
+   "prompt": 118888,
+   "cached": 0,
+   "completion": 1,
+   "engine_prefill_tokens": 118888,
+   "engine_prefill_s": 0.8795,
+   "engine_decode_s": 0.0,
+   "engine_queue_s": 0.0036,
+   "host": "strix",
+   "container": "kiln-crucible-t20-long256",
+   "source": "gateway",
+   "series_done": 1
+  },
+  {
+   "id": "row-spike-5",
+   "engine_req": null,
+   "model": "qwen3.8-flash-next",
+   "ts_start": 1768485845.081,
+   "ts_first_token": 1768485846.324,
+   "ts_last_token": 1768485846.324,
+   "ts_end": 1768485846.326,
+   "profile": "crucible-t20-long256",
+   "engine": "crucible",
+   "prompt": 119368,
+   "cached": 0,
+   "completion": 1,
+   "engine_prefill_tokens": 119368,
+   "engine_prefill_s": 1.1891,
+   "engine_decode_s": 0.0,
+   "engine_queue_s": 0.0048,
+   "host": "strix",
+   "container": "kiln-crucible-t20-long256",
+   "source": "gateway",
+   "series_done": 1
+  },
+  {
+   "id": "row-spike-6",
+   "engine_req": null,
+   "model": "qwen3.8-flash-next",
+   "ts_start": 1768485846.45,
+   "ts_first_token": 1768485848.047,
+   "ts_last_token": 1768485848.047,
+   "ts_end": 1768485848.049,
+   "profile": "crucible-t20-long256",
+   "engine": "crucible",
+   "prompt": 119848,
+   "cached": 0,
+   "completion": 1,
+   "engine_prefill_tokens": 119848,
+   "engine_prefill_s": 1.5401,
+   "engine_decode_s": 0.0,
+   "engine_queue_s": 0.0035,
+   "host": "strix",
+   "container": "kiln-crucible-t20-long256",
+   "source": "gateway",
+   "series_done": 1
+  },
+  {
+   "id": "row-spike-7",
+   "engine_req": null,
+   "model": "qwen3.8-flash-next",
+   "ts_start": 1768485848.171,
+   "ts_first_token": 1768485850.0,
+   "ts_last_token": 1768485850.0,
+   "ts_end": 1768485850.001,
+   "profile": "crucible-t20-long256",
+   "engine": "crucible",
+   "prompt": 120328,
+   "cached": 0,
+   "completion": 1,
+   "engine_prefill_tokens": 120328,
+   "engine_prefill_s": 1.7715,
+   "engine_decode_s": 0.0,
+   "engine_queue_s": 0.0035,
+   "host": "strix",
+   "container": "kiln-crucible-t20-long256",
+   "source": "gateway",
+   "series_done": 1
+  },
+  {
+   "id": "row-spike-8",
+   "engine_req": null,
+   "model": "qwen3.8-flash-next",
+   "ts_start": 1768485850.114,
+   "ts_first_token": 1768485852.246,
+   "ts_last_token": 1768485852.246,
+   "ts_end": 1768485852.248,
+   "profile": "crucible-t20-long256",
+   "engine": "crucible",
+   "prompt": 120808,
+   "cached": 0,
+   "completion": 1,
+   "engine_prefill_tokens": 120808,
+   "engine_prefill_s": 2.0763,
+   "engine_decode_s": 0.0,
+   "engine_queue_s": 0.0035,
+   "host": "strix",
+   "container": "kiln-crucible-t20-long256",
+   "source": "gateway",
+   "series_done": 1
+  },
+  {
+   "id": "row-spike-9",
+   "engine_req": null,
+   "model": "qwen3.8-flash-next",
+   "ts_start": 1768485852.423,
+   "ts_first_token": 1768485854.878,
+   "ts_last_token": 1768485854.878,
+   "ts_end": 1768485854.88,
+   "profile": "crucible-t20-long256",
+   "engine": "crucible",
+   "prompt": 121288,
+   "cached": 0,
+   "completion": 1,
+   "engine_prefill_tokens": 121288,
+   "engine_prefill_s": 2.3975,
+   "engine_decode_s": 0.0,
+   "engine_queue_s": 0.0085,
+   "host": "strix",
+   "container": "kiln-crucible-t20-long256",
+   "source": "gateway",
+   "series_done": 1
+  },
+  {
+   "id": "row-spike-10",
+   "engine_req": null,
+   "model": "qwen3.8-flash-next",
+   "ts_start": 1768485855.013,
+   "ts_first_token": 1768485857.774,
+   "ts_last_token": 1768485857.774,
+   "ts_end": 1768485857.776,
+   "profile": "crucible-t20-long256",
+   "engine": "crucible",
+   "prompt": 121768,
+   "cached": 0,
+   "completion": 1,
+   "engine_prefill_tokens": 121768,
+   "engine_prefill_s": 2.7052,
+   "engine_decode_s": 0.0,
+   "engine_queue_s": 0.0036,
+   "host": "strix",
+   "container": "kiln-crucible-t20-long256",
+   "source": "gateway",
+   "series_done": 1
+  }
+ ],
+ "chunks": {
+  "402": [
+   [
+    1768496451.138,
+    2.828,
+    4096
+   ],
+   [
+    1768496453.994,
+    5.6828,
+    8192
+   ],
+   [
+    1768496456.884,
+    8.5735,
+    12288
+   ],
+   [
+    1768496459.78,
+    11.4698,
+    16384
+   ],
+   [
+    1768496462.682,
+    14.3711,
+    20480
+   ],
+   [
+    1768496465.616,
+    17.3052,
+    24576
+   ],
+   [
+    1768496469.925,
+    21.6145,
+    28672
+   ],
+   [
+    1768496472.9,
+    24.5899,
+    32768
+   ],
+   [
+    1768496475.889,
+    27.5787,
+    36864
+   ],
+   [
+    1768496478.883,
+    30.5729,
+    40960
+   ],
+   [
+    1768496481.877,
+    33.5671,
+    45056
+   ],
+   [
+    1768496484.918,
+    36.6073,
+    49152
+   ],
+   [
+    1768496485.23,
+    36.9196,
+    49311
+   ]
+  ],
+  "403": [
+   [
+    1768496465.756,
+    0.1402,
+    110259
+   ],
+   [
+    1768496466.903,
+    1.287,
+    111096
+   ]
+  ],
+  "413": [
+   [
+    1768496536.538,
+    2.8185,
+    4096
+   ],
+   [
+    1768496539.39,
+    5.6703,
+    8192
+   ],
+   [
+    1768496543.935,
+    10.2158,
+    12288
+   ],
+   [
+    1768496546.814,
+    13.0948,
+    16384
+   ],
+   [
+    1768496549.74,
+    16.0203,
+    20480
+   ],
+   [
+    1768496552.676,
+    18.9566,
+    24576
+   ],
+   [
+    1768496555.588,
+    21.8691,
+    28672
+   ],
+   [
+    1768496558.481,
+    24.7621,
+    32768
+   ],
+   [
+    1768496562.511,
+    28.7915,
+    36864
+   ],
+   [
+    1768496565.444,
+    31.725,
+    40960
+   ],
+   [
+    1768496568.44,
+    34.7203,
+    45056
+   ],
+   [
+    1768496571.396,
+    37.6771,
+    49152
+   ],
+   [
+    1768496574.363,
+    40.6436,
+    53248
+   ],
+   [
+    1768496577.074,
+    43.3545,
+    56701
+   ]
+  ],
+  "414": [
+   [
+    1768496539.469,
+    0.0788,
+    25531
+   ],
+   [
+    1768496540.992,
+    1.6022,
+    26764
+   ]
+  ]
+ }
+}

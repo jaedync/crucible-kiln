@@ -1,0 +1,456 @@
+{
+ "cold": {
+  "total": 37298,
+  "cached": 0,
+  "reports": [
+   [
+    4096,
+    2.56
+   ],
+   [
+    8192,
+    5.21
+   ],
+   [
+    12288,
+    7.88
+   ],
+   [
+    16384,
+    10.57
+   ],
+   [
+    20480,
+    13.29
+   ],
+   [
+    24576,
+    16.02
+   ],
+   [
+    28672,
+    18.77
+   ],
+   [
+    32768,
+    21.52
+   ],
+   [
+    36864,
+    24.28
+   ],
+   [
+    37298,
+    24.84
+   ]
+  ],
+  "views": [
+   {
+    "done": 0,
+    "total": null,
+    "elapsed_s": null,
+    "at": 1000.0,
+    "start": null,
+    "start_estimated": true,
+    "start_known": false,
+    "rate": 1500.0,
+    "rate_from": "recent",
+    "next": 4096,
+    "reports": 0
+   },
+   {
+    "done": 4096,
+    "total": 37298,
+    "elapsed_s": 2.56,
+    "at": 1002.56,
+    "start": 0,
+    "start_estimated": false,
+    "start_known": true,
+    "rate": 1500.0,
+    "rate_from": "recent",
+    "next": 8192,
+    "reports": 1
+   },
+   {
+    "done": 8192,
+    "total": 37298,
+    "elapsed_s": 5.21,
+    "at": 1005.21,
+    "start": 0,
+    "start_estimated": false,
+    "start_known": true,
+    "rate": 1545.6603773584907,
+    "rate_from": "engine",
+    "next": 12288,
+    "reports": 2
+   },
+   {
+    "done": 12288,
+    "total": 37298,
+    "elapsed_s": 7.88,
+    "at": 1007.88,
+    "start": 0,
+    "start_estimated": false,
+    "start_known": true,
+    "rate": 1539.8496240601503,
+    "rate_from": "engine",
+    "next": 16384,
+    "reports": 3
+   },
+   {
+    "done": 16384,
+    "total": 37298,
+    "elapsed_s": 10.57,
+    "at": 1010.57,
+    "start": 0,
+    "start_estimated": false,
+    "start_known": true,
+    "rate": 1528.3582089552237,
+    "rate_from": "engine",
+    "next": 20480,
+    "reports": 4
+   },
+   {
+    "done": 20480,
+    "total": 37298,
+    "elapsed_s": 13.29,
+    "at": 1013.29,
+    "start": 0,
+    "start_estimated": false,
+    "start_known": true,
+    "rate": 1514.232902033272,
+    "rate_from": "engine",
+    "next": 24576,
+    "reports": 4
+   },
+   {
+    "done": 24576,
+    "total": 37298,
+    "elapsed_s": 16.02,
+    "at": 1016.02,
+    "start": 0,
+    "start_estimated": false,
+    "start_known": true,
+    "rate": 1503.119266055046,
+    "rate_from": "engine",
+    "next": 28672,
+    "reports": 4
+   },
+   {
+    "done": 28672,
+    "total": 37298,
+    "elapsed_s": 18.77,
+    "at": 1018.77,
+    "start": 0,
+    "start_estimated": false,
+    "start_known": true,
+    "rate": 1494.890510948905,
+    "rate_from": "engine",
+    "next": 32768,
+    "reports": 4
+   },
+   {
+    "done": 32768,
+    "total": 37298,
+    "elapsed_s": 21.52,
+    "at": 1021.52,
+    "start": 0,
+    "start_estimated": false,
+    "start_known": true,
+    "rate": 1489.4545454545455,
+    "rate_from": "engine",
+    "next": 36864,
+    "reports": 4
+   },
+   {
+    "done": 36864,
+    "total": 37298,
+    "elapsed_s": 24.28,
+    "at": 1024.28,
+    "start": 0,
+    "start_estimated": false,
+    "start_known": true,
+    "rate": 1486.751361161524,
+    "rate_from": "engine",
+    "next": 37298,
+    "reports": 4
+   },
+   {
+    "done": 37298,
+    "total": 37298,
+    "elapsed_s": 24.84,
+    "at": 1024.84,
+    "start": 0,
+    "start_estimated": false,
+    "start_known": true,
+    "rate": 1364.4578313253012,
+    "rate_from": "engine",
+    "next": 37298,
+    "reports": 4
+   }
+  ]
+ },
+ "block": {
+  "total": 48872,
+  "cached": 12288,
+  "reports": [
+   [
+    16384,
+    2.7
+   ],
+   [
+    20480,
+    5.38
+   ],
+   [
+    24576,
+    8.08
+   ],
+   [
+    28672,
+    10.8
+   ],
+   [
+    32768,
+    13.53
+   ],
+   [
+    36864,
+    16.86
+   ],
+   [
+    40960,
+    19.89
+   ],
+   [
+    45056,
+    22.89
+   ],
+   [
+    48872,
+    25.87
+   ]
+  ],
+  "views": [
+   {
+    "done": 0,
+    "total": null,
+    "elapsed_s": null,
+    "at": 1000.0,
+    "start": null,
+    "start_estimated": true,
+    "start_known": false,
+    "rate": 1500.0,
+    "rate_from": "recent",
+    "next": 4096,
+    "reports": 0
+   },
+   {
+    "done": 16384,
+    "total": 48872,
+    "elapsed_s": 2.7,
+    "at": 1002.7,
+    "start": 12288,
+    "start_estimated": false,
+    "start_known": true,
+    "rate": 1500.0,
+    "rate_from": "recent",
+    "next": 20480,
+    "reports": 1
+   },
+   {
+    "done": 20480,
+    "total": 48872,
+    "elapsed_s": 5.38,
+    "at": 1005.38,
+    "start": 12288,
+    "start_estimated": false,
+    "start_known": true,
+    "rate": 1528.358208955224,
+    "rate_from": "engine",
+    "next": 24576,
+    "reports": 2
+   },
+   {
+    "done": 24576,
+    "total": 48872,
+    "elapsed_s": 8.08,
+    "at": 1008.08,
+    "start": 12288,
+    "start_estimated": false,
+    "start_known": true,
+    "rate": 1522.6765799256507,
+    "rate_from": "engine",
+    "next": 28672,
+    "reports": 3
+   },
+   {
+    "done": 28672,
+    "total": 48872,
+    "elapsed_s": 10.8,
+    "at": 1010.8,
+    "start": 12288,
+    "start_estimated": false,
+    "start_known": true,
+    "rate": 1511.4391143911437,
+    "rate_from": "engine",
+    "next": 32768,
+    "reports": 4
+   },
+   {
+    "done": 32768,
+    "total": 48872,
+    "elapsed_s": 13.53,
+    "at": 1013.53,
+    "start": 12288,
+    "start_estimated": false,
+    "start_known": true,
+    "rate": 1503.119266055046,
+    "rate_from": "engine",
+    "next": 36864,
+    "reports": 4
+   },
+   {
+    "done": 36864,
+    "total": 48872,
+    "elapsed_s": 16.86,
+    "at": 1016.86,
+    "start": 12288,
+    "start_estimated": false,
+    "start_known": true,
+    "rate": 1351.815181518152,
+    "rate_from": "engine",
+    "next": 40960,
+    "reports": 4
+   },
+   {
+    "done": 40960,
+    "total": 48872,
+    "elapsed_s": 19.89,
+    "at": 1019.89,
+    "start": 12288,
+    "start_estimated": false,
+    "start_known": true,
+    "rate": 1288.0503144654085,
+    "rate_from": "engine",
+    "next": 45056,
+    "reports": 4
+   },
+   {
+    "done": 45056,
+    "total": 48872,
+    "elapsed_s": 22.89,
+    "at": 1022.89,
+    "start": 12288,
+    "start_estimated": false,
+    "start_known": true,
+    "rate": 1358.540630182421,
+    "rate_from": "engine",
+    "next": 48872,
+    "reports": 4
+   },
+   {
+    "done": 48872,
+    "total": 48872,
+    "elapsed_s": 25.87,
+    "at": 1025.87,
+    "start": 12288,
+    "start_estimated": false,
+    "start_known": true,
+    "rate": 1323.076923076923,
+    "rate_from": "engine",
+    "next": 48872,
+    "reports": 4
+   }
+  ]
+ },
+ "resumed": {
+  "total": 29989,
+  "cached": 21743,
+  "reports": [
+   [
+    21751,
+    0.06
+   ],
+   [
+    25847,
+    2.7
+   ],
+   [
+    29943,
+    5.41
+   ],
+   [
+    29989,
+    5.59
+   ]
+  ],
+  "views": [
+   {
+    "done": 0,
+    "total": null,
+    "elapsed_s": null,
+    "at": 1000.0,
+    "start": null,
+    "start_estimated": true,
+    "start_known": false,
+    "rate": 1500.0,
+    "rate_from": "recent",
+    "next": 4096,
+    "reports": 0
+   },
+   {
+    "done": 21751,
+    "total": 29989,
+    "elapsed_s": 0.06,
+    "at": 1000.06,
+    "start": 21743,
+    "start_estimated": false,
+    "start_known": true,
+    "rate": 1500.0,
+    "rate_from": "recent",
+    "next": 25847,
+    "reports": 1
+   },
+   {
+    "done": 25847,
+    "total": 29989,
+    "elapsed_s": 2.7,
+    "at": 1002.7,
+    "start": 21743,
+    "start_estimated": false,
+    "start_known": true,
+    "rate": 1551.5151515151515,
+    "rate_from": "engine",
+    "next": 29943,
+    "reports": 2
+   },
+   {
+    "done": 29943,
+    "total": 29989,
+    "elapsed_s": 5.41,
+    "at": 1005.41,
+    "start": 21743,
+    "start_estimated": false,
+    "start_known": true,
+    "rate": 1531.214953271028,
+    "rate_from": "engine",
+    "next": 29989,
+    "reports": 3
+   },
+   {
+    "done": 29989,
+    "total": 29989,
+    "elapsed_s": 5.59,
+    "at": 1005.59,
+    "start": 21743,
+    "start_estimated": false,
+    "start_known": true,
+    "rate": 1433.2179930795849,
+    "rate_from": "engine",
+    "next": 29989,
+    "reports": 4
+   }
+  ]
+ }
+}

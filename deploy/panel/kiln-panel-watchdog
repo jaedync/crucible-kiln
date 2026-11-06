@@ -1,0 +1,61 @@
+#!/usr/bin/env python3
+"""Watchdog for the rack panel kiosk, started by kiln-panel-browser next to Chromium.
+
+The panel page polls GET /api/v1/panel every second, and the dashboard keeps the time of the last poll
+from this machine (GET /api/v1/panel/seen). If the dashboard runs but the page has not polled for
+STALE_S, the renderer crashed ("Aw, Snap!") or hung: stop Chromium, so cage exits and systemd starts a
+fresh kiosk. It exits by itself when the browser process is gone.
+
+    kiln-panel-watchdog BROWSER_PID BASE_URL [STALE_S]
+"""
+from __future__ import annotations
+
+import json
+import os
+import subprocess
+import sys
+import time
+import urllib.request
+
+EVERY_S = 30
+
+
+def stale(seen: dict, limit_s: float) -> bool:
+    """No poll for longer than the limit, or none at all from a dashboard that has run twice as long."""
+    age, up = seen.get("age_s"), seen.get("uptime_s") or 0
+    return (age is not None and age > limit_s) or (age is None and up > 2 * limit_s)
+
+
+def alive(pid: int) -> bool:
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True
+    return True
+
+
+def main(pid: int, base: str, limit_s: float) -> int:
+    # Cage exits when the pipe its client inherited hangs up; holding a copy would keep a dead kiosk up.
+    os.closerange(3, os.sysconf("SC_OPEN_MAX"))
+    while True:
+        time.sleep(EVERY_S)
+        if not alive(pid):
+            return 0
+        try:
+            with urllib.request.urlopen(f"{base}/api/v1/panel/seen", timeout=3) as r:
+                seen = json.load(r)
+        except (OSError, ValueError):
+            continue  # the dashboard is down: the page shows that itself
+        if stale(seen, limit_s):
+            print("kiln-panel-watchdog: the page stopped polling the dashboard; restarting Chromium",
+                  file=sys.stderr, flush=True)
+            subprocess.run(["systemctl", "--user", "stop", "kiln-panel-chromium.scope"], check=False)
+            if alive(pid):
+                os.kill(pid, 15)
+            return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(int(sys.argv[1]), sys.argv[2], float(sys.argv[3]) if len(sys.argv) > 3 else 90.0))

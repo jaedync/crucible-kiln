@@ -1,0 +1,47 @@
+#!/bin/sh
+# Chromium kiosk for the 1424x280 rack touch display (run by cage, see kiln-panel-kiosk.service).
+#
+# Software rendering only (--disable-gpu), so the panel puts no load on the GPU that inference and the
+# Crucible benchmarks share. The page draws once a second and has no animation, so Chromium makes about
+# one frame a second; nothing here needs a frame-rate cap.
+#
+# Limits: Chromium runs in a user scope (kiln-panel-chromium.scope). Steady use is about 230 MiB and
+# 1.5% of one core. MemoryHigh makes the kernel reclaim above 512 MiB; at MemoryMax the scope is stopped
+# (OOMPolicy=stop), Chromium exits, cage exits, and systemd starts the kiosk again 5 s later.
+# MemoryLow keeps the page's memory when other GPU jobs need memory. Chromium moves its own browser
+# process into app-org.chromium.Chromium-<pid>.scope, outside these limits: app.slice's MemoryLow covers it.
+# Environment (the kiosk unit sets KILN_PANEL_URL): KILN_PANEL_URL, the panel page (default
+# http://127.0.0.1:7000/panel); KILN_PANEL_CHROMIUM, the browser (default /usr/bin/chromium).
+url="${KILN_PANEL_URL:-http://127.0.0.1:7000/panel}"
+chromium="${KILN_PANEL_CHROMIUM:-/usr/bin/chromium}"
+base="${url%/panel}"
+limits="-p MemoryLow=256M -p MemoryHigh=512M -p MemoryMax=768M -p MemorySwapMax=128M -p OOMPolicy=stop -p TimeoutStopSec=10s -p CPUWeight=10 -p CPUQuota=50%"
+STALE_S=90  # no poll from the page for this long while the dashboard runs: a crashed or hung page
+
+# Wait for the dashboard: Chromium's error page would never retry. The panel page itself reconnects
+# after a later dashboard restart.
+until curl -fsS -o /dev/null --max-time 2 "$url"; do sleep 2; done
+
+# A scope left from an earlier start would block the name.
+systemctl --user stop kiln-panel-chromium.scope 2>/dev/null
+systemctl --user reset-failed kiln-panel-chromium.scope 2>/dev/null
+# The probe carries the same limits, so a property this host rejects falls back instead of looping.
+# shellcheck disable=SC2086  # $limits is a list of words on purpose
+if systemd-run --user --scope --quiet --collect $limits true 2>/dev/null; then
+  set -- systemd-run --user --scope --quiet --collect --unit=kiln-panel-chromium $limits --
+else
+  echo "kiln-panel-browser: no user scope with limits; Chromium runs without them" >&2
+  set --
+fi
+
+# Watchdog (kiln-panel-watchdog): restarts a crashed or hung page. It watches this shell's PID, which
+# exec keeps for the browser, and closes the descriptors it inherits from cage.
+python3 -I "$(dirname "$0")/kiln-panel-watchdog" "$$" "$base" "$STALE_S" &
+
+exec "$@" "$chromium" --kiosk --ozone-platform=wayland --disable-gpu --disable-gpu-compositing \
+  --noerrdialogs --disable-infobars --no-first-run --disable-session-crashed-bubble \
+  --disable-features=Translate,TouchpadOverscrollHistoryNavigation,MediaRouter,OptimizationHints \
+  --overscroll-history-navigation=0 --disable-pinch --password-store=basic \
+  --disable-background-networking --disable-component-update --disable-sync --disable-extensions \
+  --disable-default-apps --check-for-update-interval=31536000 \
+  --user-data-dir="$HOME/.local/share/kiln-panel/chromium" "$url"

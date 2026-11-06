@@ -1,0 +1,369 @@
+halogen: halogen-flash-server 0.15.2, mode all
+halogen: /models/model.hgn carries its own precision choices: no quality sidecar applies and none is looked for
+halogen: the checkpoint's lookup table is its own file: /models/model-ngram.hgn
+halogen: a vision sidecar is present but NOT loaded: /models/model-vision.hgn
+         set HALOGEN_VISION_TOWER=/models/model-vision.hgn to accept images.
+halogen: KV budget 4 slot(s) over one 524288-position pool (each request up to 262144) = 14.9 GiB (~28 KiB/position incl. block scratch + ~115 MiB/slot) + 2.7 GiB prompt cache in RAM, on top of roughly 62.1 GiB (read from the checkpoint) of weights and 12.6 GiB of working memory (HALOGEN_MAX_TOK 32768). Those last two are estimates for this pre-flight check; the engine prints its measured figures once loaded, including the large lookup table it reads from disk and never holds. MemAvailable now 123.1 GiB.
+halogen: GTT in use before this start: 0.0 GiB of 124.0 (124.0 free; this start puts about 23.7 GiB there)
+halogen: no /tokenizer mount, using /models/tokenizer from the models volume
+serve_api: request defaults none set (built-in)
+serve_api: chat template /models/tokenizer/chat_template.jinja sha256 c3cf9e34abf4f9e3, thinking control probe passed
+halogen: waiting for engine on 8730 (cold load can take minutes)
+kv pool: host RAM 125 GiB, less 62.1 resident weights and 20.0 reserved for the n-gram page cache and the OS = 43.0 GiB for the device
+kv pool: 524288 positions, ~26.8 GiB (12.4 GiB of it for everything but the pool, at max_tok 32768)
+checkpoint: mapped 66.7 GB, NOT pinned (Pin::None)
+overlay: none (no /models/model.overlay.hgn, HALOGEN_CK_OVERLAY unset): the bare checkpoint runs
+checkpoint: mapped 51.2 GB, NOT pinned (Pin::None)
+n-gram table: 47.68 GiB from /models/model-ngram.hgn (HALOGEN_NGRAM_TABLE)
+startup [   0.0 s] host memory: 16283 contiguous 2 MiB blocks of host memory free (32566 MiB)
+startup [   0.0 s] pinning weights (reads the checkpoint from disk when it is not already in the page cache; this is usually the slowest step)
+checkpoint: pinned 62.11 GiB in 1 range(s) in 0.4 s (167.0 GB/s), 62.11 GiB of payload, MemAvailable was 123.1 GiB
+startup [   0.4 s] weights pinned: 16219 contiguous 2 MiB blocks free (32438 MiB), 0 compaction stalls during that step (0 failed)
+startup [   0.4 s] preparing weights
+startup [   0.6 s] preparing weights, layer 0 of 48
+startup [   0.7 s] preparing weights, layer 8 of 48
+startup [   0.7 s] preparing weights, layer 16 of 48
+startup [   0.7 s] preparing weights, layer 24 of 48
+startup [   0.7 s] preparing weights, layer 32 of 48
+startup [   0.7 s] preparing weights, layer 40 of 48
+startup [   0.7 s] weights ready; reserving working memory
+startup [   0.9 s] reserving the KV pool, 524288 positions (about 14.4 GiB)
+startup [   1.2 s] KV pool reserved: 2327 contiguous 2 MiB blocks free (4654 MiB), 0 compaction stalls during that step (0 failed)
+startup [   1.2 s] model ready
+startup [   1.2 s] reserving 3 more serving slot(s)
+slots: 1 -> 4 POOLED, 111.0 MiB each of O(1) state; the KV is ONE pool of 524288 positions (13312.0 MiB) carved into per-request regions
+startup [   1.2 s] preparing the prompt cache
+flash_serve: prompt cache ON, resume-anywhere (24 entries, snapshot every request, chunk 32768, 111 MiB each at ctx 262144): a warm answer is NOT bitwise the cold one
+flash_serve: prompt cache keeps the KV in place (HALOGEN_CACHE_INPLACE=1): the entry is the O(1) state, the KV rows are never copied; a follow-up turn prefills only its new tokens
+startup [   1.2 s] memory: 62.1 GiB of weights locked in RAM, 14.4 GiB of KV pool, 12.6 GiB of working memory, 89.1 GiB in all
+startup [   1.2 s] memory: the model's 47.7 GiB lookup table is NOT held in RAM. It is read from disk through the file cache as each request needs it, which is why this server holds less than the checkpoint is large
+startup [   1.2 s] host memory left for everything else: 2107 contiguous 2 MiB blocks (33.2 GiB total, most of it not contiguous)
+startup [   1.2 s] free(1) and MemAvailable will report about 95.3 GiB instead: the kernel counts this server's locked weights as reclaimable file cache, and they cannot be reclaimed
+startup [   1.2 s] opening the socket
+flash_serve: a prompt admitted beside active streams prefills in pieces of 32768 tokens with a decode tick between them (HALOGEN_ADMIT_CHUNK; 0 = the engine's own chunk, which keeps the admitted prompt bitwise its alone self; -1 = the whole prompt at once)
+flash_serve: listening on 127.0.0.1:8730, 4 slots over ONE 524288-position KV pool, each request up to 262144 (it reserves prompt + max_tokens), max_tok 32768, BATCHED greedy or sampled; MTP depth-2 selectable (drafter 1, speculates while alone)
+halogen: engine listening after 2s
+halogen: engine watchdog on, 180s of silence takes the container down
+serve_api: chat template /models/tokenizer/chat_template.jinja sha256 c3cf9e34abf4f9e3, thinking control probe passed
+serve_api: engine at 127.0.0.1:8730, listening on 0.0.0.0:8731
+serve_api: a sampled request that omits top_k / top_p gets top_k 20, top_p 0.95 (HALOGEN_TOP_K / HALOGEN_TOP_P where set, else the model's generation_config.json)
+serve_api: version 0.15.2, engine version 0.15.2
+INFO:     192.0.2.218:41076 - "GET /v1/models HTTP/1.1" 200 OK
+serve_api: mtp 29 tok in 0.73s = 39.61 t/s | 1 rounds, commit 3.00/round | prompt 55, prefill 0.26s (55 new) | detok 18us/tok | 26 tok with the head off | pool 256/524288 0% | think on, closed at 1 by answer room
+INFO:     192.0.2.218:41092 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO:     192.0.2.218:41094 - "GET /v1/models HTTP/1.1" 200 OK
+INFO:     192.0.2.218:41110 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+serve_api: mtp 11007 tok in 176.86s = 62.23 t/s | 3881 rounds, commit 2.84/round | prompt 499, prefill 0.47s (499 new) | detok 14us/tok | pld 1448 rounds, 2.32 acc/round | pool 24832/524288 5% | think on
+INFO:     192.0.2.218:56440 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+serve_api: mtp 3649 tok in 57.53s = 63.42 t/s | 1278 rounds, commit 2.85/round | prompt 547, prefill 0.55s (547 new) | detok 18us/tok | pld 368 rounds, 2.43 acc/round | pool 49408/524288 9% | think on
+INFO:     192.0.2.218:37386 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+serve_api: mtp 2470 tok in 38.21s = 64.64 t/s | 854 rounds, commit 2.89/round | prompt 529, prefill 0.55s (529 new) | detok 18us/tok | pld 255 rounds, 2.45 acc/round | pool 73984/524288 14% | think on
+INFO:     192.0.2.218:49568 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+serve_api: mtp 23076 tok in 379.82s = 60.75 t/s | 8343 rounds, commit 2.76/round | prompt 841, prefill 0.75s (841 new) | detok 18us/tok | 26 tok with the head off | pld 2849 rounds, 2.20 acc/round | pool 99072/524288 19% | think on, closed at 20400 by answer room
+INFO:     192.0.2.218:43704 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+serve_api: mtp 16523 tok in 279.04s = 59.21 t/s | 5962 rounds, commit 2.77/round | prompt 1050, prefill 0.92s (1050 new) | detok 18us/tok | pld 1847 rounds, 2.15 acc/round | pool 124160/524288 24% | think on | closest earlier: 7 tokens shared with a request 478s ago, then its prompt differs
+INFO:     192.0.2.218:32886 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+serve_api: mtp 18002 tok in 298.48s = 60.31 t/s | 6388 rounds, commit 2.82/round | prompt 894, prefill 0.79s (894 new) | detok 18us/tok | pld 2141 rounds, 2.19 acc/round | pool 149248/524288 28% | think on
+INFO:     192.0.2.218:46382 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+serve_api: mtp 4021 tok in 66.14s = 60.79 t/s | 1410 rounds, commit 2.85/round | prompt 680, prefill 0.66s (680 new) | detok 18us/tok | pld 413 rounds, 2.35 acc/round | pool 174080/524288 33% | think on
+INFO:     192.0.2.218:51418 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+serve_api: mtp 8258 tok in 143.36s = 57.60 t/s | 3092 rounds, commit 2.67/round | prompt 490, prefill 0.51s (490 new) | detok 19us/tok | pld 739 rounds, 2.21 acc/round | pool 198656/524288 38% | think on
+INFO:     192.0.2.218:40194 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+serve_api: mtp 4749 tok in 77.67s = 61.15 t/s | 1672 rounds, commit 2.84/round | prompt 688, prefill 0.70s (688 new) | detok 18us/tok | pld 514 rounds, 2.30 acc/round | pool 223488/524288 43% | think on
+INFO:     192.0.2.218:55390 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+serve_api: mtp 6703 tok in 113.15s = 59.24 t/s | 2439 rounds, commit 2.75/round | prompt 513, prefill 0.56s (513 new) | detok 18us/tok | pld 623 rounds, 2.30 acc/round | pool 248064/524288 47% | think on
+INFO:     192.0.2.218:44258 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+serve_api: mtp 3841 tok in 63.08s = 60.89 t/s | 1372 rounds, commit 2.80/round | prompt 516, prefill 0.59s (516 new) | detok 18us/tok | pld 358 rounds, 2.29 acc/round | pool 272640/524288 52% | think on
+INFO:     192.0.2.218:58672 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+serve_api: mtp 6668 tok in 108.96s = 61.20 t/s | 2337 rounds, commit 2.85/round | prompt 515, prefill 0.57s (515 new) | detok 18us/tok | pld 781 rounds, 2.36 acc/round | pool 296960/524288 57% | think on
+INFO:     192.0.2.218:57430 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+serve_api: mtp 9344 tok in 179.54s = 52.04 t/s | 4956 rounds, commit 1.89/round | prompt 499 (499 cached, 100.0%), prefill 0.00s | detok 13us/tok | pool 296960/524288 57% | think on
+INFO:     192.0.2.218:45874 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+serve_api: mtp 4065 tok in 77.45s = 52.48 t/s | 2159 rounds, commit 1.88/round | prompt 547 (547 cached, 100.0%), prefill 0.00s | detok 12us/tok | pool 296960/524288 57% | think on
+INFO:     192.0.2.218:33444 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+serve_api: mtp 3096 tok in 58.12s = 53.27 t/s | 1621 rounds, commit 1.91/round | prompt 529 (529 cached, 100.0%), prefill 0.00s | detok 12us/tok | pool 296960/524288 57% | think on
+INFO:     192.0.2.218:55920 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+serve_api: mtp 22728 tok in 440.39s = 51.61 t/s | 12140 rounds, commit 1.87/round | prompt 841 (841 cached, 100.0%), prefill 0.00s | detok 12us/tok | 26 tok with the head off | pool 296960/524288 57% | think on, closed at 20400 by answer room
+INFO:     192.0.2.218:41146 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+serve_api: mtp 14431 tok in 276.29s = 52.23 t/s | 7622 rounds, commit 1.89/round | prompt 1050 (1050 cached, 100.0%), prefill 0.00s | detok 11us/tok | pool 296960/524288 57% | think on
+INFO:     192.0.2.218:60266 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+serve_api: mtp 18153 tok in 345.31s = 52.57 t/s | 9500 rounds, commit 1.91/round | prompt 894 (894 cached, 100.0%), prefill 0.00s | detok 11us/tok | pool 296960/524288 57% | think on
+INFO:     192.0.2.218:60458 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+serve_api: mtp 3752 tok in 70.87s = 52.95 t/s | 1968 rounds, commit 1.91/round | prompt 680 (680 cached, 100.0%), prefill 0.00s | detok 12us/tok | pool 296960/524288 57% | think on
+INFO:     192.0.2.218:42476 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+serve_api: mtp 10013 tok in 193.64s = 51.71 t/s | 5344 rounds, commit 1.87/round | prompt 490 (490 cached, 100.0%), prefill 0.00s | detok 12us/tok | pool 296960/524288 57% | think on
+INFO:     192.0.2.218:52444 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+serve_api: mtp 5135 tok in 96.46s = 53.24 t/s | 2666 rounds, commit 1.93/round | prompt 688 (688 cached, 100.0%), prefill 0.00s | detok 12us/tok | pool 296960/524288 57% | think on
+INFO:     192.0.2.218:42292 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+serve_api: mtp 5375 tok in 103.42s = 51.97 t/s | 2868 rounds, commit 1.87/round | prompt 513 (513 cached, 100.0%), prefill 0.00s | detok 12us/tok | pool 296960/524288 57% | think on
+INFO:     192.0.2.218:48330 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+serve_api: mtp 5446 tok in 103.95s = 52.39 t/s | 2876 rounds, commit 1.89/round | prompt 516 (516 cached, 100.0%), prefill 0.00s | detok 12us/tok | pool 296960/524288 57% | think on
+INFO:     192.0.2.218:43414 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+serve_api: mtp 10484 tok in 200.67s = 52.25 t/s | 5523 rounds, commit 1.90/round | prompt 515 (515 cached, 100.0%), prefill 0.00s | detok 11us/tok | pool 296960/524288 57% | think on
+INFO:     192.0.2.218:39712 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+serve_api: mtp 11146 tok in 214.76s = 51.90 t/s | 5940 rounds, commit 1.88/round | prompt 499 (499 cached, 100.0%), prefill 0.00s | detok 11us/tok | pool 296960/524288 57% | think on
+INFO:     192.0.2.218:56092 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+serve_api: mtp 3413 tok in 63.85s = 53.45 t/s | 1791 rounds, commit 1.91/round | prompt 547 (547 cached, 100.0%), prefill 0.00s | detok 11us/tok | pool 296960/524288 57% | think on
+INFO:     192.0.2.218:46750 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+serve_api: mtp 2800 tok in 52.23s = 53.61 t/s | 1459 rounds, commit 1.92/round | prompt 529 (529 cached, 100.0%), prefill 0.00s | detok 12us/tok | pool 296960/524288 57% | think on
+INFO:     192.0.2.218:37590 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+serve_api: mtp 22754 tok in 436.94s = 52.08 t/s | 12022 rounds, commit 1.89/round | prompt 841 (841 cached, 100.0%), prefill 0.00s | detok 12us/tok | 25 tok with the head off | pool 296960/524288 57% | think on, closed at 20400 by answer room
+INFO:     192.0.2.218:52814 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+serve_api: mtp 22681 tok in 431.55s = 52.56 t/s | 11850 rounds, commit 1.91/round | prompt 1050 (1050 cached, 100.0%), prefill 0.00s | detok 11us/tok | 25 tok with the head off | pool 296960/524288 57% | think on, closed at 20400 by answer room
+INFO:     192.0.2.218:57414 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+serve_api: mtp 23594 tok in 447.63s = 52.71 t/s | 12277 rounds, commit 1.92/round | prompt 894 (894 cached, 100.0%), prefill 0.00s | detok 12us/tok | 26 tok with the head off | pool 296960/524288 57% | think on, closed at 20400 by answer room
+INFO:     192.0.2.218:43052 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+serve_api: mtp 3464 tok in 64.44s = 53.76 t/s | 1792 rounds, commit 1.93/round | prompt 680 (680 cached, 100.0%), prefill 0.00s | detok 11us/tok | pool 296960/524288 57% | think on
+INFO:     192.0.2.218:46204 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+serve_api: mtp 8825 tok in 169.37s = 52.10 t/s | 4680 rounds, commit 1.89/round | prompt 490 (490 cached, 100.0%), prefill 0.00s | detok 11us/tok | pool 296960/524288 57% | think on
+INFO:     192.0.2.218:41502 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+serve_api: mtp 6543 tok in 123.21s = 53.11 t/s | 3399 rounds, commit 1.92/round | prompt 688 (688 cached, 100.0%), prefill 0.00s | detok 11us/tok | pool 296960/524288 57% | think on
+INFO:     192.0.2.218:44002 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+serve_api: mtp 5872 tok in 112.17s = 52.35 t/s | 3111 rounds, commit 1.89/round | prompt 513 (513 cached, 100.0%), prefill 0.00s | detok 11us/tok | pool 296960/524288 57% | think on
+INFO:     192.0.2.218:47246 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+serve_api: mtp 6086 tok in 117.57s = 51.77 t/s | 3261 rounds, commit 1.87/round | prompt 516 (516 cached, 100.0%), prefill 0.00s | detok 13us/tok | pool 296960/524288 57% | think on
+INFO:     192.0.2.218:51084 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+serve_api: mtp 12558 tok in 239.79s = 52.37 t/s | 6604 rounds, commit 1.90/round | prompt 515 (515 cached, 100.0%), prefill 0.00s | detok 11us/tok | pool 296960/524288 57% | think on
+/halogen/tools/serve_api.py:6452: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("startup")
+INFO:     Started server process [110]
+INFO:     Waiting for application startup.
+flash_serve: grammar: vocabulary of 248077 tokens (248044 plain, longest 128 B) in 45 ms
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8731 (Press CTRL+C to quit)
+flash_serve: req 1 generated 2 tokens, 0.0 s
+flash_serve: req 2 generated 2 tokens, 0.0 s
+flash_serve: req 2 generated 1720 tokens, 30.1 s
+flash_serve: req 2 generated 3574 tokens, 60.1 s
+flash_serve: req 2 generated 5349 tokens, 90.1 s
+flash_serve: req 2 generated 7326 tokens, 120.1 s
+flash_serve: req 2 generated 9118 tokens, 150.2 s
+flash_serve: req 3 generated 2 tokens, 0.0 s
+flash_serve: req 3 generated 1928 tokens, 30.1 s
+flash_serve: req 4 generated 2 tokens, 0.0 s
+flash_serve: req 4 generated 1906 tokens, 30.1 s
+flash_serve: req 5 generated 2 tokens, 0.0 s
+flash_serve: req 5 generated 1760 tokens, 30.0 s
+flash_serve: req 5 generated 3526 tokens, 60.0 s
+flash_serve: req 5 generated 5331 tokens, 90.1 s
+flash_serve: req 5 generated 7307 tokens, 120.1 s
+flash_serve: req 5 generated 9070 tokens, 150.1 s
+flash_serve: req 5 generated 10775 tokens, 180.2 s
+flash_serve: req 5 generated 12494 tokens, 210.2 s
+flash_serve: req 5 generated 14241 tokens, 240.2 s
+flash_serve: req 5 generated 15989 tokens, 270.2 s
+flash_serve: req 5 generated 17728 tokens, 300.3 s
+flash_serve: req 5 generated 19696 tokens, 330.3 s
+flash_serve: req 5 generated 21730 tokens, 360.3 s
+flash_serve: req 6 generated 2 tokens, 0.0 s
+flash_serve: req 6 generated 1729 tokens, 30.1 s
+flash_serve: req 6 generated 3428 tokens, 60.1 s
+flash_serve: req 6 generated 5262 tokens, 90.1 s
+flash_serve: req 6 generated 7051 tokens, 120.1 s
+flash_serve: req 6 generated 8759 tokens, 150.1 s
+flash_serve: req 6 generated 10503 tokens, 180.1 s
+flash_serve: req 6 generated 12186 tokens, 210.1 s
+flash_serve: req 6 generated 14016 tokens, 240.2 s
+flash_serve: req 6 generated 15940 tokens, 270.2 s
+flash_serve: req 7 generated 2 tokens, 0.0 s
+flash_serve: req 7 generated 1720 tokens, 30.0 s
+flash_serve: req 7 generated 3452 tokens, 60.1 s
+flash_serve: req 7 generated 5239 tokens, 90.1 s
+flash_serve: req 7 generated 7200 tokens, 120.1 s
+flash_serve: req 7 generated 8896 tokens, 150.1 s
+flash_serve: req 7 generated 10631 tokens, 180.2 s
+flash_serve: req 7 generated 12449 tokens, 210.2 s
+flash_serve: req 7 generated 14197 tokens, 240.2 s
+flash_serve: req 7 generated 16043 tokens, 270.2 s
+flash_serve: req 8 generated 2 tokens, 0.0 s
+flash_serve: req 8 generated 1745 tokens, 30.1 s
+flash_serve: req 8 generated 3612 tokens, 60.1 s
+flash_serve: req 9 generated 2 tokens, 0.0 s
+flash_serve: req 9 generated 1587 tokens, 30.1 s
+flash_serve: req 9 generated 3328 tokens, 60.1 s
+flash_serve: req 9 generated 4992 tokens, 90.1 s
+flash_serve: req 9 generated 6811 tokens, 120.1 s
+flash_serve: req 10 generated 2 tokens, 0.0 s
+flash_serve: req 10 generated 1730 tokens, 30.1 s
+flash_serve: req 10 generated 3545 tokens, 60.1 s
+flash_serve: req 11 generated 2 tokens, 0.0 s
+flash_serve: req 11 generated 1754 tokens, 30.1 s
+flash_serve: req 11 generated 3425 tokens, 60.1 s
+flash_serve: req 11 generated 5254 tokens, 90.1 s
+flash_serve: req 12 generated 2 tokens, 0.0 s
+flash_serve: req 12 generated 1709 tokens, 30.1 s
+flash_serve: req 12 generated 3618 tokens, 60.1 s
+flash_serve: req 13 generated 2 tokens, 0.0 s
+flash_serve: req 13 generated 1784 tokens, 30.1 s
+flash_serve: req 13 generated 3661 tokens, 60.1 s
+flash_serve: req 13 generated 5369 tokens, 90.1 s
+flash_serve: req 14 generated 2 tokens, 0.0 s
+flash_serve: req 14 generated 1554 tokens, 30.0 s
+flash_serve: req 14 generated 3135 tokens, 60.1 s
+flash_serve: req 14 generated 4660 tokens, 90.1 s
+flash_serve: req 14 generated 6217 tokens, 120.1 s
+flash_serve: req 14 generated 7765 tokens, 150.1 s
+flash_serve: req 15 generated 2 tokens, 0.0 s
+flash_serve: req 15 generated 1546 tokens, 30.1 s
+flash_serve: req 15 generated 3120 tokens, 60.1 s
+flash_serve: req 16 generated 2 tokens, 0.0 s
+flash_serve: req 16 generated 1616 tokens, 30.1 s
+flash_serve: req 17 generated 2 tokens, 0.0 s
+flash_serve: req 17 generated 1529 tokens, 30.0 s
+flash_serve: req 17 generated 3061 tokens, 60.1 s
+flash_serve: req 17 generated 4605 tokens, 90.1 s
+flash_serve: req 17 generated 6129 tokens, 120.1 s
+flash_serve: req 17 generated 7647 tokens, 150.1 s
+flash_serve: req 17 generated 9139 tokens, 180.2 s
+flash_serve: req 17 generated 10693 tokens, 210.2 s
+flash_serve: req 17 generated 12304 tokens, 240.2 s
+flash_serve: req 17 generated 13812 tokens, 270.3 s
+flash_serve: req 17 generated 15342 tokens, 300.3 s
+flash_serve: req 17 generated 16889 tokens, 330.3 s
+flash_serve: req 17 generated 18426 tokens, 360.3 s
+flash_serve: req 17 generated 19991 tokens, 390.3 s
+flash_serve: req 17 generated 21626 tokens, 420.4 s
+flash_serve: req 18 generated 2 tokens, 0.0 s
+flash_serve: req 18 generated 1557 tokens, 30.0 s
+flash_serve: req 18 generated 3109 tokens, 60.0 s
+flash_serve: req 18 generated 4658 tokens, 90.1 s
+flash_serve: req 18 generated 6225 tokens, 120.1 s
+flash_serve: req 18 generated 7819 tokens, 150.1 s
+flash_serve: req 18 generated 9393 tokens, 180.1 s
+flash_serve: req 18 generated 10926 tokens, 210.2 s
+flash_serve: req 18 generated 12464 tokens, 240.2 s
+flash_serve: req 18 generated 14102 tokens, 270.2 s
+flash_serve: req 19 generated 2 tokens, 0.0 s
+flash_serve: req 19 generated 1582 tokens, 30.1 s
+flash_serve: req 19 generated 3131 tokens, 60.1 s
+flash_serve: req 19 generated 4649 tokens, 90.1 s
+flash_serve: req 19 generated 6198 tokens, 120.1 s
+flash_serve: req 19 generated 7749 tokens, 150.2 s
+flash_serve: req 19 generated 9333 tokens, 180.2 s
+flash_serve: req 19 generated 10983 tokens, 210.2 s
+flash_serve: req 19 generated 12554 tokens, 240.3 s
+flash_serve: req 19 generated 14112 tokens, 270.3 s
+flash_serve: req 19 generated 15680 tokens, 300.3 s
+flash_serve: req 19 generated 17328 tokens, 330.3 s
+flash_serve: req 20 generated 2 tokens, 0.0 s
+flash_serve: req 20 generated 1571 tokens, 30.1 s
+flash_serve: req 20 generated 3161 tokens, 60.1 s
+flash_serve: req 21 generated 2 tokens, 0.0 s
+flash_serve: req 21 generated 1569 tokens, 30.0 s
+flash_serve: req 21 generated 3074 tokens, 60.0 s
+flash_serve: req 21 generated 4634 tokens, 90.1 s
+flash_serve: req 21 generated 6238 tokens, 120.1 s
+flash_serve: req 21 generated 7749 tokens, 150.1 s
+flash_serve: req 21 generated 9318 tokens, 180.1 s
+flash_serve: req 22 generated 2 tokens, 0.0 s
+flash_serve: req 22 generated 1602 tokens, 30.1 s
+flash_serve: req 22 generated 3218 tokens, 60.1 s
+flash_serve: req 22 generated 4793 tokens, 90.1 s
+flash_serve: req 23 generated 2 tokens, 0.0 s
+flash_serve: req 23 generated 1577 tokens, 30.0 s
+flash_serve: req 23 generated 3135 tokens, 60.0 s
+flash_serve: req 23 generated 4657 tokens, 90.1 s
+flash_serve: req 24 generated 2 tokens, 0.0 s
+flash_serve: req 24 generated 1583 tokens, 30.0 s
+flash_serve: req 24 generated 3131 tokens, 60.1 s
+flash_serve: req 24 generated 4697 tokens, 90.1 s
+flash_serve: req 25 generated 2 tokens, 0.0 s
+flash_serve: req 25 generated 1554 tokens, 30.1 s
+flash_serve: req 25 generated 3130 tokens, 60.1 s
+flash_serve: req 25 generated 4737 tokens, 90.1 s
+flash_serve: req 25 generated 6285 tokens, 120.1 s
+flash_serve: req 25 generated 7845 tokens, 150.1 s
+flash_serve: req 25 generated 9346 tokens, 180.1 s
+flash_serve: req 26 generated 2 tokens, 0.0 s
+flash_serve: req 26 generated 1587 tokens, 30.0 s
+flash_serve: req 26 generated 3110 tokens, 60.1 s
+flash_serve: req 26 generated 4625 tokens, 90.1 s
+flash_serve: req 26 generated 6207 tokens, 120.1 s
+flash_serve: req 26 generated 7761 tokens, 150.1 s
+flash_serve: req 26 generated 9261 tokens, 180.1 s
+flash_serve: req 26 generated 10893 tokens, 210.1 s
+flash_serve: req 27 generated 2 tokens, 0.0 s
+flash_serve: req 27 generated 1638 tokens, 30.0 s
+flash_serve: req 27 generated 3203 tokens, 60.1 s
+flash_serve: req 28 generated 2 tokens, 0.0 s
+flash_serve: req 28 generated 1632 tokens, 30.1 s
+flash_serve: req 29 generated 2 tokens, 0.0 s
+flash_serve: req 29 generated 1547 tokens, 30.1 s
+flash_serve: req 29 generated 3073 tokens, 60.1 s
+flash_serve: req 29 generated 4622 tokens, 90.1 s
+flash_serve: req 29 generated 6221 tokens, 120.1 s
+flash_serve: req 29 generated 7783 tokens, 150.2 s
+flash_serve: req 29 generated 9342 tokens, 180.2 s
+flash_serve: req 29 generated 10901 tokens, 210.2 s
+flash_serve: req 29 generated 12418 tokens, 240.2 s
+flash_serve: req 29 generated 14005 tokens, 270.2 s
+flash_serve: req 29 generated 15513 tokens, 300.2 s
+flash_serve: req 29 generated 17016 tokens, 330.3 s
+flash_serve: req 29 generated 18592 tokens, 360.3 s
+flash_serve: req 29 generated 20213 tokens, 390.3 s
+flash_serve: req 29 generated 21843 tokens, 420.3 s
+flash_serve: req 30 generated 2 tokens, 0.0 s
+flash_serve: req 30 generated 1564 tokens, 30.1 s
+flash_serve: req 30 generated 3135 tokens, 60.1 s
+flash_serve: req 30 generated 4669 tokens, 90.1 s
+flash_serve: req 30 generated 6263 tokens, 120.1 s
+flash_serve: req 30 generated 7860 tokens, 150.1 s
+flash_serve: req 30 generated 9425 tokens, 180.2 s
+flash_serve: req 30 generated 10965 tokens, 210.2 s
+flash_serve: req 30 generated 12495 tokens, 240.2 s
+flash_serve: req 30 generated 14137 tokens, 270.2 s
+flash_serve: req 30 generated 15720 tokens, 300.2 s
+flash_serve: req 30 generated 17276 tokens, 330.3 s
+flash_serve: req 30 generated 18861 tokens, 360.3 s
+flash_serve: req 30 generated 20407 tokens, 390.3 s
+flash_serve: req 30 generated 22056 tokens, 420.3 s
+flash_serve: req 31 generated 2 tokens, 0.0 s
+flash_serve: req 31 generated 1575 tokens, 30.1 s
+flash_serve: req 31 generated 3113 tokens, 60.1 s
+flash_serve: req 31 generated 4685 tokens, 90.1 s
+flash_serve: req 31 generated 6258 tokens, 120.1 s
+flash_serve: req 31 generated 7832 tokens, 150.1 s
+flash_serve: req 31 generated 9401 tokens, 180.2 s
+flash_serve: req 31 generated 11014 tokens, 210.2 s
+flash_serve: req 31 generated 12518 tokens, 240.2 s
+flash_serve: req 31 generated 14076 tokens, 270.2 s
+flash_serve: req 31 generated 15718 tokens, 300.3 s
+flash_serve: req 31 generated 17339 tokens, 330.3 s
+flash_serve: req 31 generated 18885 tokens, 360.3 s
+flash_serve: req 31 generated 20433 tokens, 390.3 s
+flash_serve: req 31 generated 22086 tokens, 420.4 s
+flash_serve: req 32 generated 2 tokens, 0.0 s
+flash_serve: req 32 generated 1618 tokens, 30.1 s
+flash_serve: req 32 generated 3224 tokens, 60.1 s
+flash_serve: req 33 generated 2 tokens, 0.0 s
+flash_serve: req 33 generated 1570 tokens, 30.0 s
+flash_serve: req 33 generated 3128 tokens, 60.0 s
+flash_serve: req 33 generated 4665 tokens, 90.1 s
+flash_serve: req 33 generated 6242 tokens, 120.1 s
+flash_serve: req 33 generated 7800 tokens, 150.1 s
+flash_serve: req 34 generated 2 tokens, 0.0 s
+flash_serve: req 34 generated 1620 tokens, 30.0 s
+flash_serve: req 34 generated 3213 tokens, 60.1 s
+flash_serve: req 34 generated 4772 tokens, 90.1 s
+flash_serve: req 34 generated 6372 tokens, 120.1 s
+flash_serve: req 35 generated 2 tokens, 0.0 s
+flash_serve: req 35 generated 1600 tokens, 30.1 s
+flash_serve: req 35 generated 3142 tokens, 60.1 s
+flash_serve: req 35 generated 4687 tokens, 90.1 s
+flash_serve: req 36 generated 2 tokens, 0.0 s
+flash_serve: req 36 generated 1585 tokens, 30.1 s
+flash_serve: req 36 generated 3090 tokens, 60.1 s
+flash_serve: req 36 generated 4656 tokens, 90.1 s
+flash_serve: req 37 generated 2 tokens, 0.0 s
+flash_serve: req 37 generated 1573 tokens, 30.1 s
+flash_serve: req 37 generated 3081 tokens, 60.1 s
+flash_serve: req 37 generated 4666 tokens, 90.1 s
+flash_serve: req 37 generated 6238 tokens, 120.1 s
+flash_serve: req 37 generated 7791 tokens, 150.1 s
+flash_serve: req 37 generated 9400 tokens, 180.1 s
+flash_serve: req 37 generated 10963 tokens, 210.1 s

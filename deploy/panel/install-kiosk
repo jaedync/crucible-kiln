@@ -1,0 +1,67 @@
+#!/bin/sh
+# Install the rack panel kiosk (cage and Chromium on a touch display, tty1) for one user.
+#
+#   deploy/panel/install-kiosk [USER]        default USER: the user who runs this
+#
+# Run it as that user: it installs the launcher and the watchdog to KILN_PANEL_BIN, writes the blank
+# cursor theme, and installs the system unit kiln-panel-kiosk.service (with sudo). Then:
+#   sudo systemctl daemon-reload && sudo systemctl enable --now kiln-panel-kiosk
+#
+# Prefer a dedicated kiosk user without other rights: the kiosk reaches the dashboard from loopback, and
+# loopback may switch engines unless kiln.toml sets [actions] allow_loopback = false.
+#
+# Environment, with defaults:
+#   KILN_PANEL_HOME=<the user's home>               where the cursor theme goes (under .local/share)
+#   KILN_PANEL_BIN=$HOME/.local/bin                 where kiln-panel-browser and kiln-panel-watchdog go
+#   KILN_PANEL_URL=http://127.0.0.1:7000/panel      the page the kiosk opens
+#   KILN_PANEL_UNIT_DIR=/etc/systemd/system         where the unit goes
+#   SUDO=sudo                                       how to write KILN_PANEL_UNIT_DIR (empty: no sudo)
+#   KILN_PANEL_CAGE=/usr/bin/cage                   the kiosk compositor (package cage)
+#   KILN_PANEL_CHROMIUM=/usr/bin/chromium           the browser (package chromium; also found as
+#                                                   /usr/bin/chromium-browser)
+#
+# It checks cage, Chromium and sudo before it writes any file.
+set -eu
+here=$(cd "$(dirname "$0")" && pwd)
+user=${1:-$(id -un)}
+home=${KILN_PANEL_HOME:-$(getent passwd "$user" | cut -d: -f6)}
+uid=$(id -u "$user")
+[ -n "$home" ] || { echo "install-kiosk: no home directory for user $user" >&2; exit 2; }
+bin=${KILN_PANEL_BIN:-$home/.local/bin}
+url=${KILN_PANEL_URL:-http://127.0.0.1:7000/panel}
+unit_dir=${KILN_PANEL_UNIT_DIR:-/etc/systemd/system}
+sudo=${SUDO-sudo}
+cage=${KILN_PANEL_CAGE:-/usr/bin/cage}
+chromium=${KILN_PANEL_CHROMIUM:-}
+if [ -z "$chromium" ]; then
+  chromium=/usr/bin/chromium
+  [ -x "$chromium" ] || [ ! -x /usr/bin/chromium-browser ] || chromium=/usr/bin/chromium-browser
+fi
+# The values go into a unit that root installs: % is a systemd specifier, $ a variable, and quotes,
+# ; and line breaks change how systemd splits a line. @, | and \ would break the sed below.
+nl='
+'
+for v in "$user" "$home" "$bin" "$url" "$cage" "$chromium"; do
+  case $v in *[@\|\\%\$\;\'\"\&]*|*' '*|*"$nl"*|*"	"*) echo "install-kiosk: unsupported character in $v" >&2; exit 2 ;; esac
+done
+
+# Check everything that can fail before the first file is written.
+[ -x "$cage" ] || { echo "install-kiosk: $cage not found; install the package cage (or set KILN_PANEL_CAGE)" >&2; exit 2; }
+[ -x "$chromium" ] || {
+  echo "install-kiosk: $chromium not found; install the package chromium (or set KILN_PANEL_CHROMIUM)" >&2; exit 2; }
+if [ -n "$sudo" ]; then
+  $sudo true || { echo "install-kiosk: '$sudo true' failed; the unit goes to $unit_dir, which needs sudo" >&2; exit 2; }
+fi
+
+install -Dm755 "$here/kiln-panel-browser" "$bin/kiln-panel-browser"
+install -Dm755 "$here/kiln-panel-watchdog" "$bin/kiln-panel-watchdog"
+python3 -I "$here/blank_cursors.py" "$home/.local/share/kiln-panel/cursors" >/dev/null
+
+unit=$(mktemp)
+trap 'rm -f "$unit"' EXIT
+sed -e "s|@USER@|$user|g" -e "s|@HOME@|$home|g" -e "s|@UID@|$uid|g" -e "s|@BIN@|$bin|g" -e "s|@URL@|$url|g" \
+  -e "s|@CAGE@|$cage|g" -e "s|@CHROMIUM@|$chromium|g" \
+  "$here/kiln-panel-kiosk.service.in" > "$unit"
+if grep -q '@[A-Z]*@' "$unit"; then echo "install-kiosk: a placeholder was left in the unit" >&2; exit 1; fi
+$sudo install -Dm644 "$unit" "$unit_dir/kiln-panel-kiosk.service"
+echo "installed $unit_dir/kiln-panel-kiosk.service for $user (page $url)"

@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#161616">
+  <title>Kiln</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="fonts/archivo-black-latin-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/dm-sans-latin-wght.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="vendor/uplot/uPlot.min.css">
+  <link rel="stylesheet" href="css/kiln.css">
+  <script type="module" src="js/main.js"></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to dashboard</a>
+
+  <header class="masthead">
+    <div class="brand">
+      <h1 class="wordmark">Kiln</h1>
+      <p class="tagline"><span class="tag-red" id="host-tag"></span><span class="tag-ink">Live inference</span></p>
+    </div>
+    <section id="today" class="today" aria-label="Today"></section>
+    <div class="mark" aria-hidden="true">
+      <span class="mark-blue"><i class="arch"></i></span>
+      <span class="mark-red"><i class="square"></i></span>
+      <span class="mark-yellow"><i class="stripe"></i></span>
+    </div>
+  </header>
+
+  <div id="health" class="healthbar"></div>
+
+  <main id="main" class="grid"></main>
+
+  <footer class="foot">
+    <p>Kiln · times in your local zone · token counts from the engine's usage report; <span class="approx-inline">≈</span> marks an estimate.</p>
+  </footer>
+</body>
+</html>
