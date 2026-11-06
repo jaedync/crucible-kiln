@@ -16,10 +16,10 @@ multi-user service.
 All images and the film come from `kiln demo` (see [Try it in one command](#try-it-in-one-command)). The
 demo plays a recorded scenario on a fake engine. Its rates come from the v0.33.0 table of the Crucible README.
 
-[![A 23 second film of the Kiln dashboard. Select the image to play it.](docs/media/kiln-film-poster.webp)](docs/media/kiln-film.mp4)
+https://github.com/user-attachments/assets/e8d27491-d35b-46bf-9e07-4054b4b554f3
 
-The film (MP4, 23 s): a cold prompt in prefill, three streams that decode at the same time, the memory
-map and an engine switch. [Play it](docs/media/kiln-film.mp4).
+The film (23 s): a cold prompt in prefill, three streams that decode at the same time, the memory map
+and an engine switch. The file is also in this repo: [docs/media/kiln-film.mp4](docs/media/kiln-film.mp4).
 
 ## What Kiln shows
 
